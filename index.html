@@ -2836,8 +2836,8 @@ function buildBostonRoomTableHtml(building, slug, rooms) {
     return `<tr id="brow_${slug}_${roomSlug}" class="${rowClasses}">` +
       `<td data-label="Unit No">${u.room}</td>` +
       `<td data-label="Category">${label}</td>` +
-      genderCell +
       amenityCells +
+      genderCell +
       statusCell +
       iaCell +
       wholeCell +
@@ -2849,7 +2849,7 @@ function buildBostonRoomTableHtml(building, slug, rooms) {
 
   const amenityHeader = amenityColumnsCollapsed ? "" : BOSTON_AMENITY_FIELDS.map(([f, l]) => `<th class="amenity-col">${l}</th>`).join("");
   return `<div class="rate-table-scroll"><table class="rate-table"><thead><tr>` +
-    `<th>Unit No</th><th>Category</th><th>Gender</th>${amenityHeader}<th>Status</th><th>IA Rate ($/mo)</th><th class="rs-whole-col">Whole Apartment (Full Upfront)</th><th>Option 3 (Full Upfront)</th><th>Option 2 (2 Instalments)</th><th>Option 1 (Monthly)</th>` +
+    `<th>Unit No</th><th>Category</th>${amenityHeader}<th>Gender</th><th>Status</th><th>IA Rate ($/mo)</th><th class="rs-whole-col">Whole Apartment (Full Upfront)</th><th>Option 3 (Full Upfront)</th><th>Option 2 (2 Instalments)</th><th>Option 1 (Monthly)</th>` +
   `</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
