@@ -107,6 +107,10 @@
   .tab-btn { border: 1.5px solid var(--border); background: #fff; color: var(--text-secondary); font-family: inherit; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
   .tab-btn:hover { background: #f5f5f5; }
   .tab-btn.active { background: #303c6c; border-color: #303c6c; color: #fff; }
+  .property-toggle { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .property-toggle-btn { border: 1.5px solid var(--border); background: #fff; color: var(--text-secondary); font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+  .property-toggle-btn:hover { background: #f5f5f5; }
+  .property-toggle-btn.active { background: #7aab96; border-color: #7aab96; color: #fff; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
@@ -117,19 +121,35 @@
   #rateYear { width: 80px; text-align: center; display: inline-block; }
   .save-indicator { font-size: 12px; color: #7aab96; font-weight: 600; margin-left: 6px; opacity: 0; transition: opacity 0.3s; }
   .save-indicator.show { opacity: 1; }
-  .rate-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
-  .rate-table th, .rate-table td { border: 1px solid var(--border); padding: 8px 8px; text-align: left; font-size: 13px; }
-  .rate-table th { background: #f5f5f5; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); font-weight: 600; }
-  .rate-table input[type="number"] { width: 105px; }
+  .rate-table { width: auto; border-collapse: collapse; margin-bottom: 1.5rem; }
+  .rate-table th, .rate-table td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; font-size: 13px; }
+  .rate-table th { background: #f5f5f5; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); font-weight: 600; white-space: normal; max-width: 145px; }
+  .rate-table input[type="number"] { width: 115px; }
+  .rate-table .status-cell, .rate-table .room-status-select { width: auto; }
   .rate-table thead th.rate-group-summer { background: #eef2fb; }
   .rate-table thead th.rate-group-fall { background: #fbf3ec; }
   .rate-table-scroll { overflow-x: auto; }
   .rate-table td.rs-na { color: var(--text-secondary); text-align: center; }
-  .rate-table .rs-group-display { display: inline-block; min-width: 70px; padding: 6px 8px; font-variant-numeric: tabular-nums; color: var(--text-secondary); background: #EEECEA; border: 1px solid var(--border); border-radius: var(--radius-sm); box-sizing: border-box; }
-  .commission-panel { border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fafafa; padding: 1rem 1.25rem; }
-  .commission-panel label { margin-bottom: 8px; }
-  .commission-panel input[type="number"] { width: 140px; }
+  .rate-table .rs-group-display { display: inline-block; min-width: 72px; padding: 6px 8px; font-variant-numeric: tabular-nums; color: var(--text-secondary); background: #EEECEA; border: 1px solid var(--border); border-radius: var(--radius-sm); box-sizing: border-box; text-align: center; }
+  .rate-table td:has(.rs-group-display) { text-align: center; }
+  .rate-table th.rs-whole-col, .rate-table td.rs-whole-col { max-width: 130px; white-space: normal; }
   .commission-note { font-style: italic; color: var(--text-hint); font-size: 12px; margin-top: 10px; }
+
+  /* ── Recap Generator: Internal-only panel (Base/IA Rate, % IA, Commission) ── */
+  .internal-panel { border: 1.5px dashed #d4706b; background: #fdf3f2; }
+  .internal-label { color: #d4706b; font-weight: 700; font-size: 12px; padding: 1rem 1.25rem 0; display: flex; align-items: center; gap: 6px; }
+  .internal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 0.75rem 1.25rem 1.25rem; }
+  .internal-metric-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 4px; }
+  .internal-metric-val { font-size: 19px; font-weight: 700; letter-spacing: -0.03em; color: #303c6c; }
+  .internal-commission-input { width: 100px; font-size: 15px; font-weight: 600; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .internal-note { font-size: 11px; color: var(--text-hint); margin-top: 4px; font-style: italic; }
+  @media (max-width: 640px) { .internal-grid { grid-template-columns: 1fr; } }
+
+  /* ── Rate Sheet: client request filter (budget / room type / same COO) ── */
+  .client-filter-panel { border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fafafa; padding: 0.85rem 1rem; margin-bottom: 1rem; }
+  .client-filter-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
+  .client-filter-panel .form-row { margin-bottom: 10px; }
+  .client-filter-panel .form-row:last-of-type { margin-bottom: 0; }
 
   /* ── Rate Sheet: per-building collapsible cards ────────── */
   .rate-cards-toolbar { display: flex; gap: 10px; margin-bottom: 1rem; }
@@ -164,21 +184,54 @@
   /* ── Rate Sheet: per-room, per-season deal-status tracking ─ */
   .status-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
   .room-status-select { font-family: inherit; font-size: 12px; padding: 5px 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; min-width: 108px; box-sizing: border-box; }
+  .gender-select { font-family: inherit; font-size: 12px; padding: 4px 5px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; min-width: 70px; box-sizing: border-box; display: block; margin-bottom: 4px; }
   .status-whole-toggle { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; cursor: pointer; }
   .status-whole-toggle input { margin: 0; }
   .status-tag { display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0; }
   .status-tag:empty { display: none; }
   .status-tag-whole { color: #303c6c; background: #d6dcef; padding: 2px 7px; border-radius: 10px; }
   .status-tag-private { color: var(--text-secondary); background: #e8eaf3; padding: 2px 7px; border-radius: 10px; }
+  .status-tag-gender-male { color: #2b5faa; background: #dbe9fb; padding: 2px 7px; border-radius: 10px; }
+  .status-tag-gender-female { color: #b8447a; background: #fbe0ea; padding: 2px 7px; border-radius: 10px; }
+  .budget-stretch-badge { color: #96690b; background: #fdf1d9; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
   /* Highlight is scoped to just the affected season's <td>s (season-cell-summer /
-     season-cell-fall) via the row's summer-status-*/fall-status-* class, so a
-     room can show "sold" styling for Fall while its Summer cells stay neutral. */
-  .rate-table tr.summer-status-agreement td.season-cell-summer { background: #ffb870; }
+     season-cell-fall) via the row's summer-status-(...) / fall-status-(...) class,
+     so a room can show "sold" styling for Fall while its Summer cells stay neutral. */
+  .rate-table tr.summer-status-agreement td.season-cell-summer { background: #e8871e; }
   .rate-table tr.summer-status-sold td.season-cell-summer { background: #EEECEA; color: var(--text-secondary); }
   .rate-table tr.summer-status-sold td.season-cell-summer .rs-group-display { background: #e2e0dd; }
-  .rate-table tr.fall-status-agreement td.season-cell-fall { background: #ffb870; }
+  /* Boston has one flat status per unit (no per-season split), so the whole
+     row/apartment gets highlighted — not just specific columns like NY. */
+  .rate-table tr.boston-status-agreement td { background: #e8871e; }
+  .rate-table tr.boston-status-sold td { background: #EEECEA; color: var(--text-secondary); }
+  .rate-table tr.boston-status-sold td .rs-group-display { background: #e2e0dd; }
+  .rate-table tr.fall-status-agreement td.season-cell-fall { background: #e8871e; }
   .rate-table tr.fall-status-sold td.season-cell-fall { background: #EEECEA; color: var(--text-secondary); }
   .rate-table tr.fall-status-sold td.season-cell-fall .rs-group-display { background: #e2e0dd; }
+  /* The rowspan-merged "Whole Apartment" cell belongs to only ONE room's
+     row (the anchor), so a room-level tr.*-status-* class can't reach it if
+     a NON-anchor sibling room is the one with an active deal. These
+     cell-level classes are computed from the whole group's combined status
+     (see groupCombinedSeasonStatus / bostonGroupCombinedStatus) and applied
+     directly to that <td>, independent of anchor-vs-sibling. */
+  .rate-table td.cell-status-agreement { background: #e8871e; }
+  .rate-table td.cell-status-sold { background: #EEECEA; color: var(--text-secondary); }
+  .rate-table td.cell-status-sold .rs-group-display { background: #e2e0dd; }
+  /* The rate inputs/selects nearly fill their cells, which otherwise hides
+     the highlight color behind them almost entirely — make them transparent
+     within a highlighted row so the orange/grey actually shows. */
+  .rate-table tr.summer-status-agreement td.season-cell-summer input,
+  .rate-table tr.summer-status-agreement td.season-cell-summer select,
+  .rate-table tr.summer-status-sold td.season-cell-summer input,
+  .rate-table tr.summer-status-sold td.season-cell-summer select,
+  .rate-table tr.fall-status-agreement td.season-cell-fall input,
+  .rate-table tr.fall-status-agreement td.season-cell-fall select,
+  .rate-table tr.fall-status-sold td.season-cell-fall input,
+  .rate-table tr.fall-status-sold td.season-cell-fall select,
+  .rate-table tr.boston-status-agreement td input,
+  .rate-table tr.boston-status-agreement td select,
+  .rate-table tr.boston-status-sold td input,
+  .rate-table tr.boston-status-sold td select { background: transparent; }
   .rate-card-body .rate-table:last-child { margin-bottom: 0; }
   /* Hides every row NOT matched by the "<building> <unit>" search shorthand
      (e.g. "230 1R") so the table shows only the searched unit(s) — reset on
@@ -194,12 +247,6 @@
   .unlocked-msg { font-size: 13px; font-weight: 600; color: #7aab96; }
 
   /* ── Internal-only panel ──────────────────────────────── */
-  .internal-panel { border: 1.5px dashed #d4706b; background: #fdf3f2; }
-  .internal-label { color: #d4706b; font-weight: 700; font-size: 12px; padding: 1rem 1.25rem 0; display: flex; align-items: center; gap: 6px; }
-  .internal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 0.75rem 1.25rem 1.25rem; }
-  .internal-metric-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 4px; }
-  .internal-metric-val { font-size: 19px; font-weight: 700; letter-spacing: -0.03em; color: #303c6c; }
-  .internal-note { font-size: 11px; color: var(--text-hint); margin-top: 4px; font-style: italic; }
 
   @media (max-width: 860px) { .page { grid-template-columns: 1fr; } .summary-grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) {
@@ -208,7 +255,6 @@
     .form-row { grid-template-columns: 1fr; }
     .tab-nav { padding: 1rem 1rem 0; }
     .rate-sheet-page { padding: 1rem; }
-    .internal-grid { grid-template-columns: 1fr; }
     .pin-gate, .unlocked-row { flex-direction: column; align-items: flex-start; }
     .rate-table thead { display: none; }
     .rate-table, .rate-table tbody, .rate-table tr, .rate-table td { display: block; width: 100%; }
@@ -240,17 +286,59 @@
       </div>
       <div class="panel-body">
 
+        <div class="property-toggle" id="propertyToggle">
+          <button type="button" class="property-toggle-btn active" id="propBtnNY" onclick="switchProperty('ny')">New York</button>
+          <button type="button" class="property-toggle-btn" id="propBtnBoston" onclick="switchProperty('boston')">Boston</button>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label for="rateTableFilter">Search (building name, or "building unit" e.g. 230 1R)</label>
+            <label for="rateTableFilter" id="rateTableFilterLabel">Search (building name, or "building unit" e.g. 230 1R)</label>
             <input type="text" id="rateTableFilter" placeholder="e.g. Bleecker, or 230 1R" oninput="filterRateTable()">
           </div>
-          <div class="form-group">
+          <div class="form-group" id="rateSheetBuildingWrap">
             <label for="rateSheetBuilding">Jump to building (optional)</label>
             <select id="rateSheetBuilding" onchange="filterRateTable()">
               <option value="">— All Buildings —</option>
             </select>
           </div>
+        </div>
+
+        <div class="client-filter-panel" id="clientFilterPanel">
+          <div class="client-filter-label">Client preference filter — only shows currently available units</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="filterBudget">Max budget (Full Upfront, $/mo)</label>
+              <input type="number" id="filterBudget" min="0" placeholder="e.g. 2500" oninput="filterRateTable()">
+            </div>
+            <div class="form-group">
+              <label for="filterRoomType">Preferred room type</label>
+              <select id="filterRoomType" onchange="filterRateTable()">
+                <option value="">— Any —</option>
+                <option value="studio_1br" id="roomTypeOptStudio1br">Studio, 1 Bedroom</option>
+                <option value="private_room" id="roomTypeOptPrivate">Private room</option>
+                <option value="whole_2_3_4br" id="roomTypeOptWhole">2/3/4 Bedroom</option>
+              </select>
+            </div>
+            <div class="form-group" id="filterSameCooWrap">
+              <label for="filterSameCoo">Same COO required?</label>
+              <select id="filterSameCoo" onchange="filterRateTable()">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="filterGender">Preferred gender (private rooms)</label>
+              <select id="filterGender" onchange="filterRateTable()">
+                <option value="">— Any —</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="btn-copy" id="clearClientFilterBtn" onclick="clearClientFilters()">✕ Clear filters</button>
         </div>
 
         <div class="rate-cards-toolbar">
@@ -277,12 +365,6 @@
         </div>
 
         <div class="rate-cards-wrap" id="rateCardsWrap"></div>
-
-        <div class="commission-panel">
-          <label>Commission % of selling rate (placeholder — update when exact formula is provided)</label>
-          <input type="number" class="rs-editable" id="commissionPct" value="5" step="0.1" min="0" oninput="saveCommission()" disabled>
-          <div class="commission-note">This is a temporary placeholder formula (Commission = Selling Rate × Commission %). Replace the calculateCommission() function in this file's &lt;script&gt; once the real formula is provided.</div>
-        </div>
 
       </div>
     </div>
@@ -404,9 +486,10 @@
           <div class="internal-metric-val" id="roValue">—</div>
         </div>
         <div>
-          <div class="internal-metric-label">Commission (placeholder)</div>
-          <div class="internal-metric-val" id="commissionValue">—</div>
-          <div class="internal-note">Placeholder formula — pending final calculation from Jonia.</div>
+          <div class="internal-metric-label">Commission % (placeholder)</div>
+          <input type="number" class="internal-commission-input" id="commissionPct" value="5" step="0.1" min="0" oninput="saveCommission()">
+          <div class="internal-metric-val" id="commissionValue" style="margin-top:6px;">—</div>
+          <div class="internal-note">Commission = (Selling Rate − Utilities) × months stayed × Commission %.</div>
         </div>
       </div>
     </div>
@@ -475,19 +558,9 @@ const BUILDING_FACING = {
 // (e.g. "230" for 230 Sullivan Street, "308w" for 308 West 18th Street) and
 // can combine one with a unit number (e.g. "230 1R") to jump straight to
 // that room. See resolveBuildingFromQuery()/filterRateTable().
-// Temp/placeholder Summer 2027 Full Upfront rates per room, derived from
-// Fall27-28_Rate_Card.xlsx (per-building, per-category average transacted
-// rate + $200 buffer). For private2br/3br/4br categories the file gives a
-// WHOLE-APARTMENT figure, divided evenly across that apartment's rooms
-// here (÷2, ÷3, ÷4); studio/1BR/junior1BR figures are already per-room.
-// Applied by loadRateSheet() -> applySeedRates() ONLY to rooms that don't
-// already have a saved fullupfront_summer value, so it never overwrites
-// real numbers entered later — remove/replace this object once real
-// Summer 2027 selling rates are finalized.
-const SEED_FULLUPFRONT_SUMMER_2027 = {"308 East 52nd Street":{"1F":5000.0,"1R":5000.0,"2FL":3650.0,"2FR":3650.0,"2RL":3650.0,"2RR":3650.0,"3FL":3650.0,"3FR":3650.0,"3RL":3650.0,"3RR":3650.0,"4FL":3650.0,"4FR":3650.0,"4RL":3650.0,"4RR":3650.0,"5FL":3650.0,"5FR":3650.0,"5RL":3650.0,"5RR":3650.0,"6FL":3650.0,"6FR":3650.0,"6RL":3650.0,"6RR":3650.0},"111 East 39th Street":{"1F":4400.0,"1RL":3475.0,"1RR":3475.0,"2FL":3475.0,"2FR":3475.0,"2RL":3475.0,"2RR":3475.0,"3FL":3475.0,"3FR":3475.0,"3RL":3475.0,"3RR":3475.0,"4FL":3475.0,"4FR":3475.0,"4RL":3475.0,"4RR":3475.0,"5FL":3475.0,"5FR":3475.0,"5RL":3475.0,"5RR":3475.0},"115 East 37th Street":{"1F":4700.0,"2L":4700.0,"2F":4700.0,"2R":4700.0,"1R":6650.0,"3FL":3175.0,"3FR":3175.0,"3RR":3175.0,"3RL":3175.0,"4FL":3175.0,"4FR":3175.0,"4RR":3175.0,"4RL":3175.0,"5FL":3175.0,"5FR":3175.0,"5RR":3175.0,"5RL":3175.0},"138 East 37th Street":{"1F":4200.0,"1RR":3350.0,"1RL":3350.0,"2FL":3350.0,"2FR":3350.0,"2RR":3350.0,"2RL":3350.0,"3FL":3350.0,"3FR":3350.0,"3RR":3350.0,"3RL":3350.0,"4FL":3350.0,"4FR":3350.0,"4RR":3350.0,"4RL":3350.0,"5FL":3350.0,"5FR":3350.0,"5RR":3350.0,"5RL":3350.0},"143 East 36th Street":{"1F":4800.0,"2R":4800.0,"4F":4800.0,"4R":4800.0,"5F":4800.0,"1RL":3300.0,"1RR":3300.0,"2FL":3300.0,"2FR":3300.0,"5RL":3300.0,"5RR":3300.0,"3FL":3166.67,"3RL":3166.67,"3RR":3166.67},"336 East 15th Street":{"1F":3800.0,"1R":3800.0,"7R":4900.0,"2FL":3500.0,"2FR":3500.0,"2RL":3500.0,"2RR":3500.0,"3FL":3500.0,"3FR":3500.0,"3RL":3500.0,"3RR":3500.0,"4FL":3500.0,"4FR":3500.0,"4RL":3500.0,"4RR":3500.0,"5FL":3500.0,"5FR":3500.0,"5RL":3500.0,"5RR":3500.0,"6FL":3500.0,"6FR":3500.0,"6RL":3500.0,"6RR":3500.0},"35 East 7th Street":{"1C":3500.0,"1R":4700.0,"2R":4700.0,"3R":4700.0,"4R":4700.0,"1AL":3450.0,"1AR":3450.0,"1BL":3450.0,"1BR":3450.0,"1FL":3450.0,"1FR":3450.0,"1ML":3450.0,"1MR":3450.0,"2FL":3450.0,"2FR":3450.0,"2ML":3450.0,"2MR":3450.0,"3FL":3450.0,"3FR":3450.0,"3ML":3450.0,"3MR":3450.0,"4FL":3450.0,"4FR":3450.0,"4ML":3450.0,"4MR":3450.0},"85 2nd Avenue":{"3FL":3250.0,"3FR":3250.0,"3RL":3250.0,"3RR":3250.0,"4FL":3250.0,"4FR":3250.0,"4RL":3250.0,"4RR":3250.0,"5FL":3250.0,"5FR":3250.0,"5RL":3250.0,"5RR":3250.0},"308 West 18th Street":{"1A":4700.0,"2M":4700.0,"3M":4700.0,"4M":4700.0,"1F":4400.0,"1ML":3400.0,"1MR":3400.0,"1RL":3400.0,"1RR":3400.0,"2FL":3400.0,"2FR":3400.0,"2RL":3400.0,"2RR":3400.0,"3FL":3400.0,"3FR":3400.0,"3RL":3400.0,"3RR":3400.0,"4FL":3400.0,"4FR":3400.0,"4RL":3400.0,"4RR":3400.0},"152 West 15th Street":{"1F":4400.0,"4A":4200.0,"4B":4200.0,"4C":4200.0,"4D":4200.0,"1B":5800.0,"1R":5800.0,"1AL":3400.0,"1AR":3400.0,"2RL":3400.0,"2RR":3400.0,"2FL":3400.0,"2FR":3400.0,"3RL":3400.0,"3RR":3400.0,"3FR":3400.0,"3FL":3400.0},"230 Sullivan Street":{"1F":4200.0,"2R":6000.0,"1RL":3275.0,"1RR":3275.0,"2FL":3275.0,"2FR":3275.0,"3FL":3275.0,"3FR":3275.0,"3RR":3275.0,"3RL":3275.0,"4FL":3275.0,"4FR":3275.0,"4RL":3275.0,"4RR":3275.0,"5FL":3275.0,"5FR":3275.0,"5RL":3275.0,"5RR":3275.0},"176 Bleecker Street":{"2FL":3250.0,"2FR":3250.0,"2RL":3250.0,"2RR":3250.0,"3FL":3250.0,"3FR":3250.0,"3RL":3250.0,"3RR":3250.0,"4FL":3250.0,"4FR":3250.0,"4RL":3250.0,"4RR":3250.0,"5FL":3250.0,"5FR":3250.0,"5RL":3250.0,"5RR":3250.0},"133 West 3rd Street":{"R1L":4600.0,"R1R":4600.0,"R2L":4600.0,"R2R":4600.0,"R3L":4600.0,"R3R":4600.0,"2FL":3250.0,"2FR":3250.0,"2RL":3250.0,"2RR":3250.0,"3FL":3250.0,"3FR":3250.0,"3RL":3250.0,"3RR":3250.0,"4FL":3250.0,"4FR":3250.0,"4RL":3250.0,"4RR":3250.0},"81 Sullivan Street":{"1A":4200.0,"2FL":3350.0,"2FR":3350.0,"2RL":3350.0,"2RR":3350.0,"3FL":3350.0,"3FR":3350.0,"3RL":3350.0,"3RR":3350.0,"4FL":3350.0,"4FR":3350.0,"4RL":3350.0,"4RR":3350.0,"R1 L":3266.67,"R1 M":3266.67,"R1R":3266.67,"R2L":3266.67,"R2M":3266.67,"R2R":3266.67,"R3L":3266.67,"R3M":3266.67,"R3R":3266.67},"235 Sullivan Street":{"2R":4750.0,"3F":4750.0,"3R":4750.0,"4F":4750.0,"4R":4750.0,"5F":4750.0,"5R":4750.0}};
-
 const BUILDING_CODES = {
   "308": "308 East 52nd Street",
+  "308e": "308 East 52nd Street",
   "111": "111 East 39th Street",
   "115": "115 East 37th Street",
   "138": "138 East 37th Street",
@@ -511,6 +584,80 @@ function resolveBuildingFromQuery(buildingToken) {
   const code = buildingToken.toLowerCase();
   if (BUILDING_CODES[code]) return BUILDING_CODES[code];
   return BUILDINGS.find(b => b.toLowerCase().includes(code)) || null;
+}
+
+// A grouped (2BR/3BR/4BR) unit's "effective" COO is its group anchor's COO —
+// same fallback the Rate Sheet table itself uses when merging COO cells
+// (see effectiveCoo in buildRoomRateTableHtml). Used by the "Same COO as
+// unit" client-request filter below.
+// Explicit, staff-provided COO (Country of Origin) groupings — overrides the
+// original per-unit `coo` field (from the source spreadsheet, only ever
+// partially filled in) for the specific buildings/rooms below. Any room NOT
+// covered by a rule here falls back to the old per-unit `coo` field via
+// getUnitCoo's fallback path. "F"/"R" room-shorthand (e.g. "2F") always means
+// BOTH the Left and Right room on that floor (2FL + 2FR) — confirmed with
+// staff. Room labels are matched case-insensitively / punctuation-stripped
+// via normCooRoom, same normalization getUnitCoo's callers already use.
+const COO_GROUPS = {
+  "308 East 52nd Street": [["1F", "1R", "2FL", "2FR", "2RL", "2RR"]],
+  "111 East 39th Street": [["2FL", "2FR", "2RL", "2RR", "3FL", "3FR", "3RL", "3RR", "4FL", "4FR", "4RL", "4RR", "5FL", "5FR", "5RL", "5RR"]],
+  "336 East 15th Street": [["1F", "1R", "2FL", "2FR", "2RL", "2RR"]],
+  "138 East 37th Street": "ALL",
+  "230 Sullivan Street": "ALL",
+  "176 Bleecker Street": "ALL",
+  "235 Sullivan Street": "ALL",
+  "133 West 3rd Street": "PRIVATE4BR_ONLY",
+};
+
+function normCooRoom(room) {
+  return String(room).toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+// Returns an explicit COO group key for this room, or null if it isn't
+// covered by any rule (caller should fall back to the raw `coo` field).
+function explicitCooGroupKey(building, u) {
+  const rule = COO_GROUPS[building];
+  if (!rule) return null;
+  if (rule === "ALL") return building + "|ALL";
+  if (rule === "PRIVATE4BR_ONLY") return u.category === "private4br" ? building + "|4BR" : null;
+  const wanted = normCooRoom(u.room);
+  const idx = rule.findIndex(group => group.some(r => normCooRoom(r) === wanted));
+  return idx === -1 ? null : building + "|GROUP" + idx;
+}
+
+function getUnitCoo(building, u) {
+  const explicit = explicitCooGroupKey(building, u);
+  if (explicit !== null) return explicit;
+  if (u.groupId) {
+    const anchorRoom = u.groupId.split("|")[1];
+    const anchorUnit = UNITS.find(x => x.building === building && x.room === anchorRoom) || u;
+    return anchorUnit.coo || "";
+  }
+  return u.coo || "";
+}
+
+// The Client Request Filter's budget field isn't a hard cutoff — a room
+// priced up to this much OVER the entered budget still passes as a
+// "stretch" option (flagged with a small badge) instead of being excluded,
+// giving staff room to negotiate with the student rather than losing an
+// otherwise-close match. Applies to both NY and Boston.
+const BUDGET_STRETCH_AMOUNT = 200;
+
+// Client-filter "Preferred room type" buckets — broader than the raw
+// per-unit categories: "Studio, 1 Bedroom" covers every single-occupancy
+// whole-unit category; "Private room" and "2/3/4 Bedroom" are the SAME
+// underlying private2br/3br/4br rooms, just viewed two different ways — one
+// private room to share (priced/filtered per-room) vs the entire apartment
+// (priced/filtered against the whole-apartment total).
+const STUDIO_1BR_CATEGORIES = new Set(["studio", "studioqueen", "studioqueenplus", "studiodeluxe", "1br", "junior1br"]);
+const PRIVATE_ROOM_CATEGORIES = new Set(["private2br", "private3br", "private4br"]);
+
+function roomTypeBucketMatches(bucket, category) {
+  if (!bucket) return true;
+  if (bucket === "studio_1br") return STUDIO_1BR_CATEGORIES.has(category);
+  if (bucket === "private_room") return PRIVATE_ROOM_CATEGORIES.has(category);
+  if (bucket === "whole_2_3_4br") return PRIVATE_ROOM_CATEGORIES.has(category);
+  return true;
 }
 
 const CATEGORY_LABELS = {
@@ -539,8 +686,8 @@ const CLEANING_FEES_BY_BUCKET = {
 let generated = false;
 let selectedOption = 0;
 let outputs = { 1:"", 2:"", 3:"" };
-let currentBaseRate = null; // internal-only: looked-up Base/IA rate-sheet value for current building+category + season
 let currentSellingRate = null; // internal-only: looked-up Full Upfront rate-sheet value for current building+category + season
+let currentBaseRate = null; // internal-only: looked-up Base/IA rate-sheet value for current building+category + season
 
 // ── DATE ─────────────────────────────────────────────────────
 const MONTHS = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
@@ -595,9 +742,7 @@ function onDateInput(id) {
     parsedEl.style.color = "#d4706b";
   } else { parsedEl.textContent = ""; }
   updateCleaningFee();
-  updateBaseRateDisplay();
   updateSellingRateDisplay();
-  updateInternalPanel();
   autoGenerate();
 }
 
@@ -634,15 +779,18 @@ function getSelectedTarget() {
   const building = document.getElementById("recapBuilding").value;
   const roomVal = document.getElementById("recapRoom").value;
   if (!building || !roomVal) return null;
+  const isBoston = BOSTON_BUILDINGS.includes(building);
+  const unitsSource = isBoston ? BOSTON_UNITS : UNITS;
+  const groupsFn = isBoston ? getBostonGroupsForBuilding : getGroupsForBuilding;
   if (roomVal.indexOf("group:") === 0) {
     const anchorRoom = roomVal.slice(6);
-    const g = getGroupsForBuilding(building).find(gr => gr.groupId.split("|")[1] === anchorRoom);
+    const g = groupsFn(building).find(gr => gr.groupId.split("|")[1] === anchorRoom);
     if (!g) return null;
-    return { isGroup: true, building, groupId: g.groupId, rooms: g.rooms, category: g.category };
+    return { isGroup: true, building, groupId: g.groupId, rooms: g.rooms, category: g.category, isBoston };
   }
-  const unit = UNITS.find(u => u.building === building && u.room === roomVal);
+  const unit = unitsSource.find(u => u.building === building && u.room === roomVal);
   if (!unit) return null;
-  return { isGroup: false, building, room: unit.room, category: unit.category, unit };
+  return { isGroup: false, building, room: unit.room, category: unit.category, unit, isBoston };
 }
 
 function onBuildingSelectionChange() {
@@ -650,7 +798,10 @@ function onBuildingSelectionChange() {
   const roomSelect = document.getElementById("recapRoom");
   roomSelect.innerHTML = '<option value="">— Select unit —</option>';
   if (building) {
-    UNITS.filter(u => u.building === building).forEach(u => {
+    const isBoston = BOSTON_BUILDINGS.includes(building);
+    const unitsSource = isBoston ? BOSTON_UNITS : UNITS;
+    const groupsFn = isBoston ? getBostonGroupsForBuilding : getGroupsForBuilding;
+    unitsSource.filter(u => u.building === building).forEach(u => {
       const opt = document.createElement("option");
       opt.value = u.room;
       opt.textContent = u.room + " — " + CATEGORY_LABELS[u.category];
@@ -661,7 +812,7 @@ function onBuildingSelectionChange() {
     // grouped under their own optgroup at the end of the list so they're
     // visually distinct from individual private-room options. Buildings with
     // only single-occupancy categories (no groups) get no optgroup at all.
-    const groups = getGroupsForBuilding(building);
+    const groups = groupsFn(building);
     if (groups.length) {
       const optgroup = document.createElement("optgroup");
       optgroup.label = "Whole Apartments";
@@ -691,10 +842,28 @@ function detectBookingType(moveIn, moveOut) {
   return months <= 3 ? "summer" : "fall";
 }
 
+// Boston's flat exit-cleaning/restocking fee (no summer/fall split like NY):
+// $300 for a 1BR OR a single private room within a 2BR, $600 only when the
+// WHOLE 2BR apartment is booked — unlike NY, where a private-room booking
+// uses the same fee as the whole apartment of that category.
+function bostonCleaningFee(target) {
+  if (target.category === "1br") return 300;
+  return target.isGroup ? 600 : 300;
+}
+
 function updateCleaningFee() {
   const target = getSelectedTarget();
   if (!target) return;
   const bucket = FEE_BUCKET[target.category];
+
+  if (target.isBoston) {
+    // No season concept for Boston — always the same flat fee, and no
+    // Summer/Fall tag to show.
+    document.getElementById("cleaning").value = bostonCleaningFee(target);
+    document.getElementById("bookingTypeRow").style.display = "none";
+    return;
+  }
+
   const moveIn = parseDate(document.getElementById("moveIn").value);
   const moveOut = parseDate(document.getElementById("moveOut").value);
   const fees = CLEANING_FEES_BY_BUCKET[bucket];
@@ -714,9 +883,7 @@ function updateCleaningFee() {
 
 function onRoomSelectionChange() {
   updateCleaningFee();
-  updateBaseRateDisplay();
   updateSellingRateDisplay();
-  updateInternalPanel();
   autoGenerate();
 }
 
@@ -727,6 +894,17 @@ function onRoomSelectionChange() {
 //     groups: { [groupId]: {fullupfront_summer, fullupfront_fall} }
 // } }
 let rateSheetStore = {};
+
+// Temp/placeholder Summer 2027 Full Upfront rates per room, derived from
+// Fall27-28_Rate_Card.xlsx (per-building, per-category average transacted
+// rate + $200 buffer). For private2br/3br/4br categories the file gives a
+// WHOLE-APARTMENT figure, divided evenly across that apartment's rooms
+// here (÷2, ÷3, ÷4); studio/1BR/junior1BR figures are already per-room.
+// Applied by loadRateSheet() -> applySeedRates() ONLY to rooms that don't
+// already have a saved fullupfront_summer value, so it never overwrites
+// real numbers entered later — remove/replace this object once real
+// Summer 2027 selling rates are finalized.
+const SEED_FULLUPFRONT_SUMMER_2027 = {"308 East 52nd Street":{"1F":5000.0,"1R":5000.0,"2FL":3650.0,"2FR":3650.0,"2RL":3650.0,"2RR":3650.0,"3FL":3650.0,"3FR":3650.0,"3RL":3650.0,"3RR":3650.0,"4FL":3650.0,"4FR":3650.0,"4RL":3650.0,"4RR":3650.0,"5FL":3650.0,"5FR":3650.0,"5RL":3650.0,"5RR":3650.0,"6FL":3650.0,"6FR":3650.0,"6RL":3650.0,"6RR":3650.0},"111 East 39th Street":{"1F":4400.0,"1RL":3475.0,"1RR":3475.0,"2FL":3475.0,"2FR":3475.0,"2RL":3475.0,"2RR":3475.0,"3FL":3475.0,"3FR":3475.0,"3RL":3475.0,"3RR":3475.0,"4FL":3475.0,"4FR":3475.0,"4RL":3475.0,"4RR":3475.0,"5FL":3475.0,"5FR":3475.0,"5RL":3475.0,"5RR":3475.0},"115 East 37th Street":{"1F":4700.0,"2L":4700.0,"2F":4700.0,"2R":4700.0,"1R":6650.0,"3FL":3175.0,"3FR":3175.0,"3RR":3175.0,"3RL":3175.0,"4FL":3175.0,"4FR":3175.0,"4RR":3175.0,"4RL":3175.0,"5FL":3175.0,"5FR":3175.0,"5RR":3175.0,"5RL":3175.0},"138 East 37th Street":{"1F":4200.0,"1RR":3350.0,"1RL":3350.0,"2FL":3350.0,"2FR":3350.0,"2RR":3350.0,"2RL":3350.0,"3FL":3350.0,"3FR":3350.0,"3RR":3350.0,"3RL":3350.0,"4FL":3350.0,"4FR":3350.0,"4RR":3350.0,"4RL":3350.0,"5FL":3350.0,"5FR":3350.0,"5RR":3350.0,"5RL":3350.0},"143 East 36th Street":{"1F":4800.0,"2R":4800.0,"4F":4800.0,"4R":4800.0,"5F":4800.0,"1RL":3300.0,"1RR":3300.0,"2FL":3300.0,"2FR":3300.0,"5RL":3300.0,"5RR":3300.0,"3FL":3166.67,"3RL":3166.67,"3RR":3166.67},"336 East 15th Street":{"1F":3800.0,"1R":3800.0,"7R":4900.0,"2FL":3500.0,"2FR":3500.0,"2RL":3500.0,"2RR":3500.0,"3FL":3500.0,"3FR":3500.0,"3RL":3500.0,"3RR":3500.0,"4FL":3500.0,"4FR":3500.0,"4RL":3500.0,"4RR":3500.0,"5FL":3500.0,"5FR":3500.0,"5RL":3500.0,"5RR":3500.0,"6FL":3500.0,"6FR":3500.0,"6RL":3500.0,"6RR":3500.0},"35 East 7th Street":{"1C":3500.0,"1R":4700.0,"2R":4700.0,"3R":4700.0,"4R":4700.0,"1AL":3450.0,"1AR":3450.0,"1BL":3450.0,"1BR":3450.0,"1FL":3450.0,"1FR":3450.0,"1ML":3450.0,"1MR":3450.0,"2FL":3450.0,"2FR":3450.0,"2ML":3450.0,"2MR":3450.0,"3FL":3450.0,"3FR":3450.0,"3ML":3450.0,"3MR":3450.0,"4FL":3450.0,"4FR":3450.0,"4ML":3450.0,"4MR":3450.0},"85 2nd Avenue":{"3FL":3250.0,"3FR":3250.0,"3RL":3250.0,"3RR":3250.0,"4FL":3250.0,"4FR":3250.0,"4RL":3250.0,"4RR":3250.0,"5FL":3250.0,"5FR":3250.0,"5RL":3250.0,"5RR":3250.0},"308 West 18th Street":{"1A":4700.0,"2M":4700.0,"3M":4700.0,"4M":4700.0,"1F":4400.0,"1ML":3400.0,"1MR":3400.0,"1RL":3400.0,"1RR":3400.0,"2FL":3400.0,"2FR":3400.0,"2RL":3400.0,"2RR":3400.0,"3FL":3400.0,"3FR":3400.0,"3RL":3400.0,"3RR":3400.0,"4FL":3400.0,"4FR":3400.0,"4RL":3400.0,"4RR":3400.0},"152 West 15th Street":{"1F":4400.0,"4A":4200.0,"4B":4200.0,"4C":4200.0,"4D":4200.0,"1B":5800.0,"1R":5800.0,"1AL":3400.0,"1AR":3400.0,"2RL":3400.0,"2RR":3400.0,"2FL":3400.0,"2FR":3400.0,"3RL":3400.0,"3RR":3400.0,"3FR":3400.0,"3FL":3400.0},"230 Sullivan Street":{"1F":4200.0,"2R":6000.0,"1RL":3275.0,"1RR":3275.0,"2FL":3275.0,"2FR":3275.0,"3FL":3275.0,"3FR":3275.0,"3RR":3275.0,"3RL":3275.0,"4FL":3275.0,"4FR":3275.0,"4RL":3275.0,"4RR":3275.0,"5FL":3275.0,"5FR":3275.0,"5RL":3275.0,"5RR":3275.0},"176 Bleecker Street":{"2FL":3250.0,"2FR":3250.0,"2RL":3250.0,"2RR":3250.0,"3FL":3250.0,"3FR":3250.0,"3RL":3250.0,"3RR":3250.0,"4FL":3250.0,"4FR":3250.0,"4RL":3250.0,"4RR":3250.0,"5FL":3250.0,"5FR":3250.0,"5RL":3250.0,"5RR":3250.0},"133 West 3rd Street":{"R1L":4600.0,"R1R":4600.0,"R2L":4600.0,"R2R":4600.0,"R3L":4600.0,"R3R":4600.0,"2FL":3250.0,"2FR":3250.0,"2RL":3250.0,"2RR":3250.0,"3FL":3250.0,"3FR":3250.0,"3RL":3250.0,"3RR":3250.0,"4FL":3250.0,"4FR":3250.0,"4RL":3250.0,"4RR":3250.0},"81 Sullivan Street":{"1A":4200.0,"2FL":3350.0,"2FR":3350.0,"2RL":3350.0,"2RR":3350.0,"3FL":3350.0,"3FR":3350.0,"3RL":3350.0,"3RR":3350.0,"4FL":3350.0,"4FR":3350.0,"4RL":3350.0,"4RR":3350.0,"R1 L":3266.67,"R1 M":3266.67,"R1R":3266.67,"R2L":3266.67,"R2M":3266.67,"R2R":3266.67,"R3L":3266.67,"R3M":3266.67,"R3R":3266.67},"235 Sullivan Street":{"2R":4750.0,"3F":4750.0,"3R":4750.0,"4F":4750.0,"4R":4750.0,"5F":4750.0,"5R":4750.0}};
 
 // ── Per-room, per-season deal-status tracking (independent of rates/PIN) ──
 // mirrors localStorage "hc_room_status_v1":
@@ -783,6 +961,43 @@ function getRoomSeasonStatus(building, u, season) {
   const b = statusStore[building];
   const v = b && b.rooms && b.rooms[u.room] && b.rooms[u.room][season];
   return (v === "agreement" || v === "sold") ? v : "available";
+}
+
+// The rowspan-merged "Whole Apartment" cell lives on only ONE room's row
+// (the anchor), so it can't rely on that single room's status the way every
+// other cell in the row does — e.g. if the anchor room is Available but its
+// sibling private room is Agreement Issued, the cell should still show
+// something's happening in this apartment. Combines every room in the
+// group's status for this season with priority Agreement > Sold > Available.
+function groupCombinedSeasonStatus(building, groupId, season) {
+  if (isWholeLinked(building, groupId, season)) {
+    return statusStore[building].groups[groupId][season].status;
+  }
+  const group = getGroupsForBuilding(building).find(g => g.groupId === groupId);
+  if (!group) return "available";
+  const statuses = group.rooms.map(r => {
+    const b = statusStore[building];
+    const v = b && b.rooms && b.rooms[r] && b.rooms[r][season];
+    return (v === "agreement" || v === "sold") ? v : "available";
+  });
+  if (statuses.includes("agreement")) return "agreement";
+  if (statuses.includes("sold")) return "sold";
+  return "available";
+}
+
+// Re-applies the combined-status highlight (see groupCombinedSeasonStatus)
+// directly to the Whole Apartment <td> by ID, without a full table re-render
+// — used by the lightweight status-change refresh path.
+function refreshGroupWholeCellHighlight(building, groupId, season) {
+  const slug = slugify(building);
+  const gSlug = groupSlug(groupId);
+  const span = document.getElementById("rate_group_fullupfront_display_" + season + "_" + slug + "_" + gSlug);
+  const td = span && span.closest("td");
+  if (!td) return;
+  td.classList.remove("cell-status-agreement", "cell-status-sold");
+  const status = groupCombinedSeasonStatus(building, groupId, season);
+  if (status === "agreement") td.classList.add("cell-status-agreement");
+  else if (status === "sold") td.classList.add("cell-status-sold");
 }
 
 function saveRoomStatusStore() {
@@ -857,6 +1072,7 @@ function refreshRoomRowVisual(building, u) {
     row.classList.remove(season + "-status-agreement", season + "-status-sold");
     if (status === "agreement") row.classList.add(season + "-status-agreement");
     if (status === "sold") row.classList.add(season + "-status-sold");
+    if (u.groupId) refreshGroupWholeCellHighlight(building, u.groupId, season);
 
     const sel = document.getElementById("status_" + season + "_" + slug + "_" + roomSlug);
     if (sel && sel.value !== status) sel.value = status;
@@ -899,6 +1115,12 @@ function onRoomSeasonStatusChange(selectEl) {
     (group ? group.rooms : []).forEach(r => setRoomIndividualStatus(building, r, season, value));
   }
 
+  // resetGenderIfAvailable already resets gender for every room in `room`'s
+  // group (not just `room` itself), so one call here covers both the
+  // whole-linked and independent-room cases above.
+  resetGenderIfAvailable(building, room, value, season);
+
+  saveGenderStore();
   saveRoomStatusStore();
   refreshBuildingStatusVisuals(building);
   updateBuildingStatusSummary(building);
@@ -1001,16 +1223,19 @@ function getGroupsForBuilding(building) {
 // so lookups work from the Recap Generator tab regardless of any filtering
 // currently applied to the Rate Sheet tab's all-buildings table. Keyed by the
 // specific room selected (per-room rates, not per-category).
-function getIaRate(building, room, season) {
-  const b = rateSheetStore[building];
-  const r = b && b.rooms && b.rooms[room];
-  return r ? parseFloat(r["ia_"+season]) : NaN;
-}
-
 function getFullUpfrontRate(building, room, season) {
   const b = rateSheetStore[building];
   const r = b && b.rooms && b.rooms[room];
   return r ? parseFloat(r["fullupfront_"+season]) : NaN;
+}
+
+// Base/IA rate for a specific room+season — used only by the Recap
+// Generator's internal-only "Base / IA Rate" lookup and %(+/-) IA metric,
+// never shown to the prospect (see updateBaseRateDisplay/updateInternalPanel).
+function getIaRate(building, room, season) {
+  const b = rateSheetStore[building];
+  const r = b && b.rooms && b.rooms[room];
+  return r ? parseFloat(r["ia_"+season]) : NaN;
 }
 
 // Whole-apartment Full Upfront rate for a group — auto-computed (never
@@ -1157,6 +1382,147 @@ function buildStatusCellHtml(building, slug, u, season) {
   return `<td data-label="${seasonLabel} Status" class="season-cell-${season}"><div class="status-cell">${select}${wholeToggle}${tag}</div></td>`;
 }
 
+// ── GENDER (per private-room assignment, shared across NY + Boston) ──
+// mirrors localStorage "hc_room_gender_v1": { [building]: { [room]: "M"|"F" } }
+// Independent per room (not per group) — a 2BR apartment can have one Male
+// private room and one Female private room. Displayed as a small badge
+// (same pink-pill style as the existing "Private"/"Whole Apt" status tags)
+// right next to the room's own Gender column, and used by the client
+// request filter's "Preferred gender" dropdown.
+let genderStore = {};
+
+// NY has two independent seasons (Summer/Fall) — the same physical room can
+// have a different occupant/gender each season, so NY stores gender nested
+// per season: genderStore[building][room] = {summer:"M", fall:"F"}. Boston
+// has no season split, so it stores a flat string instead:
+// genderStore[building][room] = "M". getRoomGender/setRoomGender handle both
+// shapes transparently based on whether a `season` argument is passed.
+function getRoomGender(building, room, season) {
+  const b = genderStore[building];
+  const r = b && b[room];
+  if (!r) return "";
+  if (typeof r === "string") return r; // Boston: flat, no season
+  return (season && r[season]) || "";
+}
+
+function setRoomGender(building, room, value, season) {
+  if (!genderStore[building]) genderStore[building] = {};
+  if (season) {
+    const cur = genderStore[building][room];
+    const obj = (cur && typeof cur === "object") ? cur : {};
+    if (!value) delete obj[season]; else obj[season] = value;
+    if (Object.keys(obj).length === 0) delete genderStore[building][room];
+    else genderStore[building][room] = obj;
+  } else {
+    if (!value) delete genderStore[building][room];
+    else genderStore[building][room] = value;
+  }
+  if (genderStore[building] && Object.keys(genderStore[building]).length === 0) delete genderStore[building];
+}
+
+function saveGenderStore() {
+  localStorage.setItem("hc_room_gender_v1", JSON.stringify(genderStore));
+}
+
+function loadGenderStore() {
+  try {
+    const raw = localStorage.getItem("hc_room_gender_v1");
+    genderStore = raw ? JSON.parse(raw) : {};
+  } catch (e) { genderStore = {}; }
+}
+
+const GENDER_LABELS = { M: "Male", F: "Female" };
+
+// When a room's status is reverted back to "available" (deal fell through /
+// undone), its assigned gender is stale — reset it to the default "—" so a
+// re-listed private room doesn't keep showing a leftover Male/Female tag.
+// Gender is a whole-apartment concept (set one private room to Male and the
+// rest of that 2/3/4BR apartment follows — see onRoomGenderChange), so
+// clearing it on revert-to-available resets EVERY room in that same group
+// for this season too, not just the one room whose status changed —
+// otherwise a sibling room could keep showing a stale Male/Female tag for an
+// apartment that no longer has anyone assigned. Updates the DOM directly
+// (select value + tag) rather than doing a full table re-render, matching
+// the lightweight refresh pattern status changes already use
+// (refreshRoomRowVisual / refreshBostonRoomRowVisual).
+function resetGenderIfAvailable(building, room, value, season) {
+  if (value !== "available") return;
+  const isBoston = BOSTON_BUILDINGS.includes(building);
+  const groupsFn = isBoston ? getBostonGroupsForBuilding : getGroupsForBuilding;
+  const group = groupsFn(building).find(g => g.rooms.includes(room));
+  const rooms = group ? group.rooms : [room];
+  rooms.forEach(r => {
+    setRoomGender(building, r, "", season);
+    let selector = `select.gender-select[data-building="${building}"][data-room="${r}"]`;
+    selector += season ? `[data-season="${season}"]` : ":not([data-season])";
+    const sel = document.querySelector(selector);
+    if (!sel) return;
+    sel.value = "";
+    const td = sel.closest("td");
+    const tag = td && td.querySelector(".status-tag-gender-male, .status-tag-gender-female");
+    if (tag) tag.remove();
+  });
+}
+
+// season is passed for NY (either "summer" or "fall") — omitted for Boston,
+// which has no season split and stores gender flat per room instead.
+function buildGenderCellHtml(building, u, season) {
+  const label = season ? (season === "summer" ? "Summer Gender" : "Fall Gender") : "Gender";
+  const seasonCls = season ? ` season-cell-${season}` : "";
+  if (!u.groupId) return `<td data-label="${label}" class="rs-na${seasonCls}">&mdash;</td>`;
+  const gender = getRoomGender(building, u.room, season);
+  const seasonAttr = season ? ` data-season="${season}"` : "";
+  // Gender is intentionally NOT gated by the Rate Sheet PIN (no "rs-editable"
+  // class, no "disabled") — unlike rates, it's not sensitive pricing info,
+  // and staff need to be able to set it without unlocking editing first.
+  const select = `<select class="gender-select" data-building="${building}" data-room="${u.room}"${seasonAttr} onchange="onRoomGenderChange(this)">` +
+    `<option value=""${!gender ? " selected" : ""}>—</option>` +
+    `<option value="M"${gender === "M" ? " selected" : ""}>Male</option>` +
+    `<option value="F"${gender === "F" ? " selected" : ""}>Female</option>` +
+  `</select>`;
+  const tagClass = gender === "M" ? "status-tag-gender-male" : gender === "F" ? "status-tag-gender-female" : "";
+  const tag = gender ? `<span class="status-tag ${tagClass}">${GENDER_LABELS[gender]}</span>` : "";
+  return `<td data-label="${label}" class="${seasonCls.trim()}">${select}${tag}</td>`;
+}
+
+// Gender is set per-room, but within one apartment (2/3/4 Bedroom group of
+// private rooms) it must stay consistent across every room in that group —
+// setting one private room to Male marks the rest of that same apartment's
+// private rooms Male too (and same for Female). For NY this only propagates
+// WITHIN the same season (data-season on the <select>) since Summer and Fall
+// are independent bookings and can have entirely different occupants; Boston
+// has no season attribute at all, so it propagates flat as before. Works for
+// both properties since both expose a groupsFn(building) -> [{groupId, rooms:[...]}].
+function onRoomGenderChange(selectEl) {
+  const building = selectEl.getAttribute("data-building");
+  const room = selectEl.getAttribute("data-room");
+  const season = selectEl.getAttribute("data-season") || null;
+  const value = selectEl.value;
+  const isBoston = BOSTON_BUILDINGS.includes(building);
+  const groupsFn = isBoston ? getBostonGroupsForBuilding : getGroupsForBuilding;
+  const group = groupsFn(building).find(g => g.rooms.includes(room));
+  if (group) {
+    group.rooms.forEach(r => setRoomGender(building, r, value, season));
+  } else {
+    setRoomGender(building, room, value, season);
+  }
+  saveGenderStore();
+  // Full re-render is the simplest way to keep the badge + select in sync —
+  // preserve which cards were expanded first, same trick toggleAmenityColumns
+  // uses. (NY has independent Summer/Fall Gender cells; this only touches
+  // the one season that was actually changed, via the `season` value baked
+  // into setRoomGender/getRoomGender above.)
+  const expandedSlugs = Array.from(document.querySelectorAll("#rateCardsWrap .rate-card.expanded")).map(c => c.id.replace(/^rateCard_/, ""));
+  renderRateSheetTable();
+  expandedSlugs.forEach(slug => {
+    const card = document.getElementById("rateCard_" + slug);
+    if (!card) return;
+    card.classList.add("expanded");
+    const btn = card.querySelector(".rate-card-header");
+    if (btn) btn.setAttribute("aria-expanded", "true");
+  });
+}
+
 const AMENITY_COLUMN_FIELDS = [
   ["noiseCode", "Noise Code"],
   ["washerDryer", "In-Unit Washer & Dryer"],
@@ -1272,27 +1638,48 @@ function buildRoomRateTableHtml(building, slug, rooms) {
     }
     let wholeSummerCell, wholeFallCell;
     if (!u.groupId) {
-      wholeSummerCell = `<td data-label="Summer Whole Apartment (Full Upfront)" class="rate-group-summer season-cell-summer rs-na">&mdash;</td>`;
-      wholeFallCell = `<td data-label="Fall Whole Apartment (Full Upfront)" class="rate-group-fall season-cell-fall rs-na">&mdash;</td>`;
+      wholeSummerCell = `<td data-label="Summer Whole Apartment (Full Upfront)" class="rate-group-summer season-cell-summer rs-na rs-whole-col">&mdash;</td>`;
+      wholeFallCell = `<td data-label="Fall Whole Apartment (Full Upfront)" class="rate-group-fall season-cell-fall rs-na rs-whole-col">&mdash;</td>`;
     } else if (isGroupBlockStart) {
       const gSlug = groupSlug(u.groupId);
-      wholeSummerCell = `<td data-label="Summer Whole Apartment (Full Upfront)" class="rate-group-summer season-cell-summer" rowspan="${groupSize}"><span class="rs-group-display" id="rate_group_fullupfront_display_summer_${slug}_${gSlug}">&mdash;</span><input type="hidden" id="rate_group_opt1_summer_${slug}_${gSlug}"></td>`;
-      wholeFallCell = `<td data-label="Fall Whole Apartment (Full Upfront)" class="rate-group-fall season-cell-fall" rowspan="${groupSize}"><span class="rs-group-display" id="rate_group_fullupfront_display_fall_${slug}_${gSlug}">&mdash;</span><input type="hidden" id="rate_group_opt1_fall_${slug}_${gSlug}"><input type="hidden" id="rate_group_opt2_fall_${slug}_${gSlug}"></td>`;
+      // The Whole Apartment cell is rowspan-merged onto the anchor room's
+      // row, so it can never inherit a highlight from a NON-anchor room's
+      // status via the row-level tr.summer-status-* CSS classes — e.g. if
+      // the anchor room is Available but its private-room sibling is
+      // Agreement Issued, the merged cell would otherwise stay unhighlighted
+      // even though there's an active deal in this apartment. Instead its
+      // highlight is computed from the GROUP's combined status (see
+      // groupCombinedSeasonStatus) and applied as its own cell-status-*
+      // class, independent of which room happens to be the anchor.
+      const summerCellStatus = groupCombinedSeasonStatus(building, u.groupId, "summer");
+      const fallCellStatus = groupCombinedSeasonStatus(building, u.groupId, "fall");
+      const summerCellCls = summerCellStatus === "agreement" ? " cell-status-agreement" : summerCellStatus === "sold" ? " cell-status-sold" : "";
+      const fallCellCls = fallCellStatus === "agreement" ? " cell-status-agreement" : fallCellStatus === "sold" ? " cell-status-sold" : "";
+      wholeSummerCell = `<td data-label="Summer Whole Apartment (Full Upfront)" class="rate-group-summer season-cell-summer rs-whole-col${summerCellCls}" rowspan="${groupSize}"><span class="rs-group-display" id="rate_group_fullupfront_display_summer_${slug}_${gSlug}">&mdash;</span><input type="hidden" id="rate_group_opt1_summer_${slug}_${gSlug}"></td>`;
+      wholeFallCell = `<td data-label="Fall Whole Apartment (Full Upfront)" class="rate-group-fall season-cell-fall rs-whole-col${fallCellCls}" rowspan="${groupSize}"><span class="rs-group-display" id="rate_group_fullupfront_display_fall_${slug}_${gSlug}">&mdash;</span><input type="hidden" id="rate_group_opt1_fall_${slug}_${gSlug}"><input type="hidden" id="rate_group_opt2_fall_${slug}_${gSlug}"></td>`;
     } else {
       wholeSummerCell = "";
       wholeFallCell = "";
     }
+
+    // Gender is per-season for NY (Summer and Fall are independent bookings
+    // and can have different occupants in the same room), so there are two
+    // separate Gender cells, living inside each season's own column group.
+    const genderCellSummer = buildGenderCellHtml(building, u, "summer");
+    const genderCellFall = buildGenderCellHtml(building, u, "fall");
 
     return `<tr id="row_${slug}_${roomSlug}" class="${rowStatusClasses}">` +
       `<td data-label="Unit No">${u.room}</td>` +
       `<td data-label="Category">${label}</td>` +
       cooCell +
       amenityCells +
+      genderCellSummer +
       statusSummerCell +
       `<td data-label="Summer IA Rate ($/mo)" class="season-cell-summer"><input type="number" class="rs-editable" id="rate_ia_summer_${slug}_${roomSlug}" min="0" oninput="saveRateSheet()" disabled></td>` +
       wholeSummerCell +
       `<td data-label="Summer Option 2 (Full Upfront)" class="season-cell-summer"><input type="number" class="rs-editable" id="rate_fullupfront_summer_${slug}_${roomSlug}" min="0" oninput="saveRateSheet()" disabled></td>` +
       `<td data-label="Summer Option 1 (Monthly)" class="season-cell-summer"><input type="number" id="rate_opt1_summer_${slug}_${roomSlug}" readonly tabindex="-1"></td>` +
+      genderCellFall +
       statusFallCell +
       `<td data-label="Fall IA Rate ($/mo)" class="season-cell-fall"><input type="number" class="rs-editable" id="rate_ia_fall_${slug}_${roomSlug}" min="0" oninput="saveRateSheet()" disabled></td>` +
       wholeFallCell +
@@ -1318,13 +1705,13 @@ function buildRoomRateTableHtml(building, slug, rooms) {
       `<tr>` +
         `<th rowspan="2">Unit No</th><th rowspan="2">Category</th>` +
         amenityToggleHeaderRow1 +
-        `<th colspan="5" class="rate-group-summer">Summer</th>` +
-        `<th colspan="6" class="rate-group-fall">Fall</th>` +
+        `<th colspan="6" class="rate-group-summer">Summer</th>` +
+        `<th colspan="7" class="rate-group-fall">Fall</th>` +
       `</tr>` +
       `<tr>` +
         amenityHeaderRow2 +
-        `<th class="rate-group-summer">Status</th><th class="rate-group-summer">IA Rate ($/mo)</th><th class="rate-group-summer">Whole Apartment (Full Upfront)</th><th class="rate-group-summer">Option 2 (Full Upfront)</th><th class="rate-group-summer">Option 1 (Monthly)</th>` +
-        `<th class="rate-group-fall">Status</th><th class="rate-group-fall">IA Rate ($/mo)</th><th class="rate-group-fall">Whole Apartment (Full Upfront)</th><th class="rate-group-fall">Option 3 (Full Upfront)</th><th class="rate-group-fall">Option 2 (2 Instalments)</th><th class="rate-group-fall">Option 1 (Monthly)</th>` +
+        `<th class="rate-group-summer">Gender</th><th class="rate-group-summer">Status</th><th class="rate-group-summer">IA Rate ($/mo)</th><th class="rate-group-summer rs-whole-col">Whole Apartment (Full Upfront)</th><th class="rate-group-summer">Option 2 (Full Upfront)</th><th class="rate-group-summer">Option 1 (Monthly)</th>` +
+        `<th class="rate-group-fall">Gender</th><th class="rate-group-fall">Status</th><th class="rate-group-fall">IA Rate ($/mo)</th><th class="rate-group-fall rs-whole-col">Whole Apartment (Full Upfront)</th><th class="rate-group-fall">Option 3 (Full Upfront)</th><th class="rate-group-fall">Option 2 (2 Instalments)</th><th class="rate-group-fall">Option 1 (Monthly)</th>` +
       `</tr>` +
     `</thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -1412,6 +1799,7 @@ function collapseAllRateCards() {
 // cards render their inputs into the DOM at load time (only hidden via CSS
 // when collapsed, never removed).
 function renderRateSheetTable() {
+  if (currentProperty === "boston") { renderBostonRateSheetTable(); return; }
   const wrap = document.getElementById("rateCardsWrap");
 
   wrap.innerHTML = BUILDINGS.map(buildRateCardHtml).join("");
@@ -1474,6 +1862,7 @@ function renderRateSheetTable() {
 // as a specific unit to filter the table down to (see below).
 let _rateSearchAutoExpanded = false;
 function filterRateTable() {
+  if (currentProperty === "boston") { filterRateTableBoston(); return; }
   const raw = (document.getElementById("rateTableFilter").value || "").trim();
   const q = raw.toLowerCase();
   const sel = (document.getElementById("rateSheetBuilding").value||"").toLowerCase();
@@ -1481,6 +1870,9 @@ function filterRateTable() {
   // Reset any unit-level row filtering from a previous search before
   // re-applying it below — every row starts visible again each run.
   document.querySelectorAll("#rateCardsWrap tr[id^='row_']").forEach(row => row.classList.remove("rate-row-search-hidden"));
+  // Same for the budget "stretch" badges (see BUDGET_STRETCH_AMOUNT below) —
+  // recomputed fresh every run rather than left stale from a previous budget.
+  document.querySelectorAll("#rateCardsWrap .budget-stretch-badge").forEach(b => b.remove());
 
   let targetBuildingLower = null;
   let targetRoom = null;
@@ -1504,14 +1896,158 @@ function filterRateTable() {
     if (q && visible) card.classList.add("expanded");
   });
 
-  if (q) {
+  // ── Client request filter (budget / room type / same COO) ───────────
+  // Layers on top of the text search above: a room must pass BOTH to stay
+  // visible. Group-safety (never show one room of a 2BR/3BR/4BR pair while
+  // hiding its sibling) is preserved the same way the unit-search shorthand
+  // preserves it below — if any room in a group passes, the whole group
+  // stays visible, since the rowspan-merged COO/amenity/whole-apartment
+  // cells only exist once per group.
+  const budget = parseFloat(document.getElementById("filterBudget").value);
+  const hasBudget = !isNaN(budget) && budget > 0;
+  const roomType = document.getElementById("filterRoomType").value;
+  // "Same COO" is a Yes/No toggle with two modes:
+  //   1. A specific unit is ALSO typed in the main search box above
+  //      (targetBuildingLower/targetRoom) — narrows to units sharing that
+  //      exact unit's COO group.
+  //   2. Nothing specific is typed — shows every AVAILABLE unit, across
+  //      ALL buildings, that's covered by ANY explicit COO_GROUPS rule at
+  //      all (i.e. every room where Same-COO is a real, staff-defined
+  //      requirement), independent of the Preferred room type dropdown.
+  const sameCooEnabled = document.getElementById("filterSameCoo").value === "yes";
+  let cooBuilding = null, cooValue = null;
+  if (sameCooEnabled && targetBuildingLower && targetRoom) {
+    const buildingForCoo = BUILDINGS.find(b => b.toLowerCase() === targetBuildingLower);
+    if (buildingForCoo) {
+      const norm2 = s => String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
+      const wantedNorm2 = norm2(targetRoom);
+      const refUnit = getRoomsForBuilding(buildingForCoo).find(u => norm2(u.room) === wantedNorm2);
+      if (refUnit) {
+        cooBuilding = buildingForCoo;
+        cooValue = getUnitCoo(buildingForCoo, refUnit);
+      }
+    }
+  }
+  const genderFilter = document.getElementById("filterGender").value;
+  const clientFilterActive = hasBudget || !!roomType || !!genderFilter || sameCooEnabled;
+
+  if (q || clientFilterActive) {
     _rateSearchAutoExpanded = true;
   } else if (_rateSearchAutoExpanded) {
     collapseAllRateCards();
     _rateSearchAutoExpanded = false;
   }
 
-  if (targetBuildingLower && targetRoom) {
+  if (clientFilterActive) {
+    document.querySelectorAll("#rateCardsWrap .rate-card").forEach(card => {
+      if (card.style.display === "none") return; // already excluded by text/building search
+      const buildingLower = card.getAttribute("data-building-name");
+      const actualBuilding = BUILDINGS.find(b => b.toLowerCase() === buildingLower);
+      if (!actualBuilding) return;
+
+      // "Same COO as" narrows the whole view down to just that one building
+      // — a COO code only makes sense compared within the same building.
+      if (cooBuilding && actualBuilding !== cooBuilding) {
+        card.style.display = "none";
+        return;
+      }
+
+      const slug = slugify(actualBuilding);
+      const roomsInBuilding = getRoomsForBuilding(actualBuilding);
+      const groups = getGroupsForBuilding(actualBuilding);
+      const passes = new Map();
+      const stretch = new Map();
+
+      roomsInBuilding.forEach(u => {
+        const row = document.getElementById("row_" + slug + "_" + slugify(u.room));
+        if (!row || row.classList.contains("rate-row-search-hidden")) { passes.set(u.room, false); return; }
+
+        let ok = true;
+        let isStretch = false;
+        if (roomType && !roomTypeBucketMatches(roomType, u.category)) ok = false;
+        if (ok && hasBudget) {
+          // "2/3/4 Bedroom" prices against the whole apartment's total (the
+          // client wants the entire place); every other bucket — including
+          // "Private room" — prices against just this room's own rate.
+          // Anything over budget but within BUDGET_STRETCH_AMOUNT still
+          // passes as a "stretch" option (flagged with a badge below)
+          // rather than being excluded outright — gives staff a little room
+          // to negotiate with the student instead of a hard cutoff.
+          const useGroupTotal = roomType === "whole_2_3_4br" && u.groupId;
+          let fitsExact = false, fitsStretch = false;
+          ["summer", "fall"].forEach(season => {
+            const rv = useGroupTotal
+              ? getGroupFullUpfrontRate(actualBuilding, u.groupId, season)
+              : getFullUpfrontRate(actualBuilding, u.room, season);
+            if (rv && !isNaN(rv) && rv > 0) {
+              if (rv <= budget) fitsExact = true;
+              else if (rv <= budget + BUDGET_STRETCH_AMOUNT) fitsStretch = true;
+            }
+          });
+          if (!fitsExact && !fitsStretch) ok = false;
+          else if (!fitsExact) isStretch = true;
+        }
+        if (ok) {
+          const availSummer = getRoomSeasonStatus(actualBuilding, u, "summer") === "available";
+          const availFall = getRoomSeasonStatus(actualBuilding, u, "fall") === "available";
+          if (!availSummer && !availFall) ok = false;
+        }
+        if (ok && sameCooEnabled) {
+          if (cooValue !== null) {
+            // Mode 1: a specific reference unit was typed — narrow to its group.
+            if (getUnitCoo(actualBuilding, u) !== cooValue) ok = false;
+          } else {
+            // Mode 2: no reference unit — show only rooms an explicit
+            // COO_GROUPS rule actually covers (i.e. Same-COO genuinely
+            // applies to them), regardless of Preferred room type.
+            if (explicitCooGroupKey(actualBuilding, u) === null) ok = false;
+          }
+        }
+        // NY gender is per-season (Summer/Fall independent) — match if EITHER
+        // season has the requested gender, since a room can be Male in one
+        // season and unassigned/Female in the other.
+        if (ok && genderFilter && getRoomGender(actualBuilding, u.room, "summer") !== genderFilter && getRoomGender(actualBuilding, u.room, "fall") !== genderFilter) ok = false;
+        passes.set(u.room, ok);
+        stretch.set(u.room, ok && isStretch);
+      });
+
+      groups.forEach(g => {
+        const anyPass = g.rooms.some(r => passes.get(r));
+        if (anyPass) g.rooms.forEach(r => passes.set(r, true));
+      });
+
+      let anyVisible = false;
+      roomsInBuilding.forEach(u => {
+        const row = document.getElementById("row_" + slug + "_" + slugify(u.room));
+        if (!row) return;
+        if (passes.get(u.room)) {
+          anyVisible = true;
+          if (stretch.get(u.room)) {
+            const cell = row.querySelector('td[data-label="Category"]');
+            if (cell && !cell.querySelector(".budget-stretch-badge")) {
+              const badge = document.createElement("span");
+              badge.className = "status-tag budget-stretch-badge";
+              badge.textContent = "+$" + BUDGET_STRETCH_AMOUNT + " stretch";
+              cell.appendChild(badge);
+            }
+          }
+        } else row.classList.add("rate-row-search-hidden");
+      });
+
+      if (!anyVisible) card.style.display = "none";
+      else card.classList.add("expanded");
+    });
+  }
+
+  // When "Same COO required?" is Yes, the typed "<building> <unit>" in the
+  // search box is being reused purely as a REFERENCE point for which COO to
+  // match against (see cooValue above) — the actual visible-rows decision
+  // for that case is already fully handled by the client-filter block above.
+  // Skip this exact-unit narrow-down entirely in that mode, otherwise it
+  // would immediately re-hide every other COO-matching unit and leave only
+  // the one literally-typed room visible, defeating the whole point of the
+  // filter.
+  if (targetBuildingLower && targetRoom && !sameCooEnabled) {
     const building = BUILDINGS.find(b => b.toLowerCase() === targetBuildingLower);
     // Compare with ALL non-alphanumerics stripped (not just slugify's
     // "replace with underscore") so a typed "R1L" still finds the actual
@@ -1596,16 +2132,8 @@ function saveRateSheet() {
   localStorage.setItem("hc_rate_sheet_v3", JSON.stringify(rateSheetStore));
   localStorage.setItem("hc_rate_year_v1", document.getElementById("rateYear").value);
   showSaved();
-  updateBaseRateDisplay();
   updateSellingRateDisplay();
-  updateInternalPanel();
   autoGenerate();
-}
-
-function saveCommission() {
-  localStorage.setItem("hc_commission_pct_v1", document.getElementById("commissionPct").value);
-  showSaved();
-  updateInternalPanel();
 }
 
 function showSaved() {
@@ -1645,12 +2173,15 @@ function loadRateSheet() {
   // buildRoomRateTableHtml/buildRateCardHtml read statusStore synchronously
   // while building each row's <select>/<tr> markup and the header summary.
   loadRoomStatus();
+  loadGenderStore();
 
   const year = localStorage.getItem("hc_rate_year_v1");
   document.getElementById("rateYear").value = (year !== null && year !== "") ? year : "2027";
 
   const pct = localStorage.getItem("hc_commission_pct_v1");
   document.getElementById("commissionPct").value = (pct !== null && pct !== "") ? pct : "5";
+
+  loadBostonRateSheet();
 
   renderRateSheetTable();
 }
@@ -1692,47 +2223,33 @@ function switchTab(name) {
   document.getElementById("tabBtnRateSheet").className = "tab-btn" + (!isRecap ? " active" : "");
 }
 
-// ── INTERNAL: BASE RATE LOOKUP, %(+/-) IA & COMMISSION (never shown to prospect) ──
-function updateBaseRateDisplay() {
-  const disp = document.getElementById("baseRateDisplay");
-  const target = getSelectedTarget();
-  const moveIn = parseDate(document.getElementById("moveIn").value);
-  const moveOut = parseDate(document.getElementById("moveOut").value);
+// ── BASE / SELLING RATE LOOKUP (from Rate Sheet tab) ──
 
-  currentBaseRate = null;
+// Boston's Full Upfront rate is pre-filled in the Rate Sheet tab from the
+// source sheet even before anything is explicitly saved (see
+// buildBostonRoomTableHtml) — so the Recap Generator honors that same
+// default here, falling back to it only when nothing's been saved yet.
+// IA Rate has no such default (manual-only, same as NY) so it's read
+// straight from the store with no fallback.
+function bostonEffectiveFullUpfront(building, room) {
+  const stored = getBostonFullUpfrontRate(building, room);
+  if (!isNaN(stored) && stored > 0) return stored;
+  const u = BOSTON_UNITS.find(x => x.building === building && x.room === room);
+  if (!u) return NaN;
+  const def = u.category === "1br" ? u.rate : u.privateRate;
+  return (def !== undefined && def !== null && def !== "") ? parseFloat(def) : NaN;
+}
 
-  if (!target || !moveIn || !moveOut || moveOut <= moveIn) {
-    disp.value = "—";
-    disp.style.color = "";
-    return;
-  }
-
-  const season = detectBookingType(moveIn, moveOut);
-  // Whole apartment: Base/IA Rate = sum of every room's IA rate in the group —
-  // only shown as a total if EVERY room in the group has its IA rate set;
-  // otherwise fall through to the "Not set" warning below (never a partial sum).
-  let val;
-  if (target.isGroup) {
-    let sum = 0, allSet = true;
-    target.rooms.forEach(room => {
-      const rv = getIaRate(target.building, room, season);
-      if (!rv || isNaN(rv) || rv <= 0) { allSet = false; }
-      else { sum += rv; }
-    });
-    val = allSet ? sum : NaN;
-  } else {
-    val = getIaRate(target.building, target.room, season);
-  }
-
-  if (!val || isNaN(val) || val <= 0) {
-    disp.value = "⚠ Not set — add it in Rate Sheet tab";
-    disp.style.color = "#d4706b";
-    currentBaseRate = null;
-  } else {
-    disp.value = money(val);
-    disp.style.color = "";
-    currentBaseRate = val;
-  }
+function bostonEffectiveGroupFullUpfront(building, groupId) {
+  const group = getBostonGroupsForBuilding(building).find(g => g.groupId === groupId);
+  if (!group) return NaN;
+  let sum = 0, allSet = true;
+  group.rooms.forEach(room => {
+    const rv = bostonEffectiveFullUpfront(building, room);
+    if (!rv || isNaN(rv) || rv <= 0) allSet = false;
+    else sum += rv;
+  });
+  return allSet ? sum : NaN;
 }
 
 function updateSellingRateDisplay() {
@@ -1749,10 +2266,17 @@ function updateSellingRateDisplay() {
     return;
   }
 
-  const season = detectBookingType(moveIn, moveOut);
-  const val = target.isGroup
-    ? getGroupFullUpfrontRate(target.building, target.groupId, season)
-    : getFullUpfrontRate(target.building, target.room, season);
+  let val;
+  if (target.isBoston) {
+    val = target.isGroup
+      ? bostonEffectiveGroupFullUpfront(target.building, target.groupId)
+      : bostonEffectiveFullUpfront(target.building, target.room);
+  } else {
+    const season = detectBookingType(moveIn, moveOut);
+    val = target.isGroup
+      ? getGroupFullUpfrontRate(target.building, target.groupId, season)
+      : getFullUpfrontRate(target.building, target.room, season);
+  }
 
   if (!val || isNaN(val) || val <= 0) {
     disp.value = "⚠ Not set — add it in Rate Sheet tab";
@@ -1765,20 +2289,124 @@ function updateSellingRateDisplay() {
   }
 }
 
+// ── INTERNAL: BASE RATE LOOKUP, %(+/-) IA & COMMISSION (never shown to prospect) ──
+// Boston's IA rate for a group is summed the same way as its Full Upfront
+// (see bostonEffectiveGroupFullUpfront) — every room in the group must have
+// its own IA rate set, or this returns NaN rather than a partial sum.
+function bostonEffectiveGroupIaRate(building, groupId) {
+  const group = getBostonGroupsForBuilding(building).find(g => g.groupId === groupId);
+  if (!group) return NaN;
+  let sum = 0, allSet = true;
+  group.rooms.forEach(room => {
+    const rv = getBostonIaRate(building, room);
+    if (!rv || isNaN(rv) || rv <= 0) allSet = false;
+    else sum += rv;
+  });
+  return allSet ? sum : NaN;
+}
+
+function updateBaseRateDisplay() {
+  const disp = document.getElementById("baseRateDisplay");
+  const target = getSelectedTarget();
+  const moveIn = parseDate(document.getElementById("moveIn").value);
+  const moveOut = parseDate(document.getElementById("moveOut").value);
+
+  currentBaseRate = null;
+
+  if (!target || !moveIn || !moveOut || moveOut <= moveIn) {
+    disp.value = "—";
+    disp.style.color = "";
+    return;
+  }
+
+  let val;
+  if (target.isBoston) {
+    val = target.isGroup
+      ? bostonEffectiveGroupIaRate(target.building, target.groupId)
+      : getBostonIaRate(target.building, target.room);
+  } else {
+    // Whole apartment: Base/IA Rate = sum of every room's IA rate in the group —
+    // only shown as a total if EVERY room in the group has its IA rate set;
+    // otherwise fall through to the "Not set" warning below (never a partial sum).
+    const season = detectBookingType(moveIn, moveOut);
+    if (target.isGroup) {
+      let sum = 0, allSet = true;
+      target.rooms.forEach(room => {
+        const rv = getIaRate(target.building, room, season);
+        if (!rv || isNaN(rv) || rv <= 0) { allSet = false; }
+        else { sum += rv; }
+      });
+      val = allSet ? sum : NaN;
+    } else {
+      val = getIaRate(target.building, target.room, season);
+    }
+  }
+
+  if (!val || isNaN(val) || val <= 0) {
+    disp.value = "⚠ Not set — add it in Rate Sheet tab";
+    disp.style.color = "#d4706b";
+    currentBaseRate = null;
+  } else {
+    disp.value = money(val);
+    disp.style.color = "";
+    currentBaseRate = val;
+  }
+}
+
 function getCommissionPct() {
   const v = parseFloat(document.getElementById("commissionPct").value);
   return isNaN(v) ? 0 : v;
 }
 
-// PLACEHOLDER FORMULA — replace this function once the real commission
-// calculation is provided by Jonia. Currently: Commission = Selling Rate × Commission %.
-function calculateCommission(sellingRate, commissionPct) {
-  return sellingRate * (commissionPct / 100);
+// Fractional number of months between two Date objects, pro-rating any
+// partial month by its share of that calendar month's actual day count
+// (e.g. 15 days in a 30-day month = 0.5 months). Mirrors the day-by-month
+// walk buildBreakdown() already uses for the recap's own payment schedule,
+// just expressed as a running total of month-fractions instead of dollar
+// amounts.
+function calcMonths(moveIn, moveOut) {
+  let months = 0;
+  let curYear = moveIn.getFullYear(), curMonth = moveIn.getMonth(), curDay = moveIn.getDate();
+  const endYear = moveOut.getFullYear(), endMonth = moveOut.getMonth(), endDay0 = moveOut.getDate();
+  while (true) {
+    const dim = daysInMonth(curYear, curMonth + 1);
+    const endDay = (curYear === endYear && curMonth === endMonth) ? endDay0 : dim;
+    months += (endDay - curDay + 1) / dim;
+    if (curYear === endYear && curMonth === endMonth) break;
+    curMonth++; if (curMonth > 11) { curMonth = 0; curYear++; } curDay = 1;
+  }
+  return months;
+}
+
+// Monthly utilities fee deducted before commission is calculated — based on
+// the selected target's room category, not string-matching the unit number
+// (unlike the reference implementation this was adapted from, which parsed
+// the unit code directly). $170/mo for an individual private room (in a
+// shared 2/3/4BR apartment), $680/mo for a whole 4-Bedroom apartment, $340/mo
+// for everything else (Studio, 1BR, Junior 1BR, or a whole 2BR/3BR
+// apartment). Applies the same way to both NY and Boston.
+function getUtilitiesFee(target) {
+  if (!target) return 340;
+  if (!target.isGroup) return PRIVATE_ROOM_CATEGORIES.has(target.category) ? 170 : 340;
+  return target.category === "private4br" ? 680 : 340;
+}
+
+// Commission = (Total Rent over the stay − Total Utilities over the stay) ×
+// Commission %. Total Rent/Utilities are the monthly Selling Rate/utilities
+// fee multiplied by the (possibly fractional) number of months stayed —
+// adapted from the commission calculator built in the other chat, using this
+// tool's own selling-rate lookup and room-category data instead of an
+// external ref-number/incentives lookup.
+function calculateCommission(sellingRate, commissionPct, months, utilitiesFee) {
+  const totalRent = sellingRate * months;
+  const totalUtil = utilitiesFee * months;
+  return Math.round((totalRent - totalUtil) * (commissionPct / 100) * 100) / 100;
 }
 
 function updateInternalPanel() {
   const roEl = document.getElementById("roValue");
   const commEl = document.getElementById("commissionValue");
+  if (!roEl || !commEl) return;
 
   const sellingRate = currentSellingRate;
   const baseRate = currentBaseRate;
@@ -1800,11 +2428,23 @@ function updateInternalPanel() {
     }
   }
 
-  if (!sellingRate || isNaN(sellingRate)) {
+  const target = getSelectedTarget();
+  const moveIn = parseDate(document.getElementById("moveIn").value);
+  const moveOut = parseDate(document.getElementById("moveOut").value);
+
+  if (!sellingRate || isNaN(sellingRate) || !target || !moveIn || !moveOut || moveOut <= moveIn) {
     commEl.textContent = "—";
   } else {
-    commEl.textContent = money(calculateCommission(sellingRate, getCommissionPct()));
+    const months = calcMonths(moveIn, moveOut);
+    const utilitiesFee = getUtilitiesFee(target);
+    commEl.textContent = money(calculateCommission(sellingRate, getCommissionPct(), months, utilitiesFee));
   }
+}
+
+function saveCommission() {
+  localStorage.setItem("hc_commission_pct_v1", document.getElementById("commissionPct").value);
+  showSaved();
+  updateInternalPanel();
 }
 
 // ── HELPERS ──────────────────────────────────────────────────
@@ -1930,8 +2570,8 @@ Total Amount Due: ${money(due)} (Due upon signing the Licence Agreement)`;
 // ── AUTO-GENERATE ─────────────────────────────────────────────
 function autoGenerate() {
   // internal-only lookups (never leak into outputs[1..3] copy-paste text)
-  updateBaseRateDisplay();
   updateSellingRateDisplay();
+  updateBaseRateDisplay();
   updateInternalPanel();
 
   const target = getSelectedTarget();
@@ -1940,8 +2580,9 @@ function autoGenerate() {
   const moveOut = parseDate(document.getElementById("moveOut").value);
   if (!moveIn||!moveOut||moveOut<=moveIn) return;
 
-  const type = detectBookingType(moveIn, moveOut);
-  const isSummer = type === "summer";
+  // Boston has no summer/fall split — it always shows all 3 payment options,
+  // same as NY's Fall bookings.
+  const isSummer = target.isBoston ? false : detectBookingType(moveIn, moveOut) === "summer";
 
   // r3 (Selling Rate) — for a whole-apartment selection this is the group's
   // Full Upfront rate (currentSellingRate, already resolved for this target+
@@ -1966,13 +2607,17 @@ function autoGenerate() {
   document.getElementById("rate2").value = r2;
   document.getElementById("rate3display").value = r3;
 
-  // Fee bucket / cleaning fee / bank fee: whole-apartment bookings use the
-  // SAME bucket/amounts a private room of that same category (2BR/3BR/4BR)
-  // would use — no new fee logic, just keyed off target.category either way.
+  // Fee bucket / cleaning fee / bank fee: cleaning fee is keyed off category
+  // bucket (whole-apartment bookings use the same bucket a private room of
+  // that category would use). Bank fee is different — it's per BOOKING, not
+  // per category: an individual private room (isGroup:false) is always $15,
+  // even if that room's category happens to be a shared 2BR/3BR/4BR category;
+  // only an actual whole-apartment booking (isGroup:true) is $30 (2 x $15).
   const bucket = FEE_BUCKET[target.category];
-  const bankFee = 15 * (bucket==="twobed" ? 2 : 1);
+  const bankFee = target.isGroup ? 30 : 15;
   document.getElementById("bankFee").value = bankFee;
-  const clean = parseFloat(document.getElementById("cleaning").value)||CLEANING_FEES_BY_BUCKET[bucket].fall;
+  const defaultCleaningFee = target.isBoston ? bostonCleaningFee(target) : CLEANING_FEES_BY_BUCKET[bucket].fall;
+  const clean = parseFloat(document.getElementById("cleaning").value)||defaultCleaningFee;
   const dep1=r1, dep2=r2, dep3=r3;
 
   document.getElementById("deposit").value = selectedOption===1?dep1:selectedOption===2?dep2:dep3;
@@ -2050,21 +2695,610 @@ function fallbackCopy(text,onSuccess) {
   document.body.removeChild(ta);
 }
 
+// ══════════════════════════════════════════════════════════════
+// ── BOSTON PROPERTY (single-season rate sheet, added alongside NY) ──
+// Boston has no Summer/Fall split — one flat rate per room/apartment —
+// so it gets its own lightweight data/render/storage path rather than
+// reusing the NY summer/fall machinery. A property toggle (New York /
+// Boston) switches which set of cards renders into #rateCardsWrap.
+// ══════════════════════════════════════════════════════════════
+const BOSTON_BUILDINGS = ["922 Mass Ave"];
+const BOSTON_UNITS = [{"building": "922 Mass Ave", "room": "101", "category": "1br", "groupId": null, "sqft": "", "washerDryer": "Yes", "ac": "Yes", "dishwasher": "Yes", "microwave": "Yes", "cooktop": "Yes", "sofa": "Yes", "diningTable": "Yes", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "102", "category": "1br", "groupId": null, "sqft": "328", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "103", "category": "1br", "groupId": null, "sqft": "322", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "104", "category": "1br", "groupId": null, "sqft": "329", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "105L", "category": "private2br", "groupId": "922 Mass Ave|105L", "sqft": "522", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate": 4350, "privateRate": 2250}, {"building": "922 Mass Ave", "room": "105R", "category": "private2br", "groupId": "922 Mass Ave|105L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate": 2100}, {"building": "922 Mass Ave", "room": "106L", "category": "private2br", "groupId": "922 Mass Ave|106L", "sqft": "478", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate":4250, "privateRate": 2000}, {"building": "922 Mass Ave", "room": "106R", "category": "private2br", "groupId": "922 Mass Ave|106L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2250}, {"building": "922 Mass Ave", "room": "107L", "category": "private2br", "groupId": "922 Mass Ave|107L", "sqft": "581", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate":4400, "privateRate":2250}, {"building": "922 Mass Ave", "room": "107R", "category": "private2br", "groupId": "922 Mass Ave|107L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2100}, {"building": "922 Mass Ave", "room": "108L", "category": "private2br", "groupId": "922 Mass Ave|108L", "sqft": "TBA", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "Yes", "groupRate": 4350, "privateRate":2250}, {"building": "922 Mass Ave", "room": "108R", "category": "private2br", "groupId": "922 Mass Ave|108L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2100}, {"building": "922 Mass Ave", "room": "109L", "category": "private2br", "groupId": "922 Mass Ave|109L", "sqft": "TBA", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate": 4350, "privateRate":2100}, {"building": "922 Mass Ave", "room": "109R", "category": "private2br", "groupId": "922 Mass Ave|109L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2250}, {"building": "922 Mass Ave", "room": "110", "category": "1br", "groupId": null, "sqft": "TBA", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "Yes", "rate": 3400}, {"building": "922 Mass Ave", "room": "201L", "category": "private2br", "groupId": "922 Mass Ave|201L", "sqft": "475", "washerDryer": "Yes", "ac": "Yes", "dishwasher": "Yes", "microwave": "Yes", "cooktop": "Yes", "sofa": "Yes", "diningTable": "Yes", "oven": "-", "groupRate": 4350, "privateRate": 2250}, {"building": "922 Mass Ave", "room": "201R", "category": "private2br", "groupId": "922 Mass Ave|201L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate": 2100}, {"building": "922 Mass Ave", "room": "202", "category": "1br", "groupId": null, "sqft": "328", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "203", "category": "1br", "groupId": null, "sqft": "322", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "204", "category": "1br", "groupId": null, "sqft": "329", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "205L", "category": "private2br", "groupId": "922 Mass Ave|205L", "sqft": "522", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate": 4350, "privateRate": 2250}, {"building": "922 Mass Ave", "room": "205R", "category": "private2br", "groupId": "922 Mass Ave|205L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate": 2100}, {"building": "922 Mass Ave", "room": "206L", "category": "private2br", "groupId": "922 Mass Ave|206L", "sqft": "478", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate":4250, "privateRate": 2000}, {"building": "922 Mass Ave", "room": "206R", "category": "private2br", "groupId": "922 Mass Ave|206L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2250}, {"building": "922 Mass Ave", "room": "207L", "category": "private2br", "groupId": "922 Mass Ave|207L", "sqft": "581", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate":4400, "privateRate":2250}, {"building": "922 Mass Ave", "room": "207R", "category": "private2br", "groupId": "922 Mass Ave|207L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2100}, {"building": "922 Mass Ave", "room": "301L", "category": "private2br", "groupId": "922 Mass Ave|301L", "sqft": "475", "washerDryer": "Yes", "ac": "Yes", "dishwasher": "Yes", "microwave": "Yes", "cooktop": "Yes", "sofa": "Yes", "diningTable": "Yes", "oven": "-", "groupRate": 4350, "privateRate": 2250}, {"building": "922 Mass Ave", "room": "301R", "category": "private2br", "groupId": "922 Mass Ave|301L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate": 2100}, {"building": "922 Mass Ave", "room": "302", "category": "1br", "groupId": null, "sqft": "328", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "303", "category": "1br", "groupId": null, "sqft": "322", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "304", "category": "1br", "groupId": null, "sqft": "329", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "305L", "category": "private2br", "groupId": "922 Mass Ave|305L", "sqft": "522", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate": 4350, "privateRate": 2250}, {"building": "922 Mass Ave", "room": "305R", "category": "private2br", "groupId": "922 Mass Ave|305L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate": 2100}, {"building": "922 Mass Ave", "room": "306L", "category": "private2br", "groupId": "922 Mass Ave|306L", "sqft": "478", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate":4250, "privateRate": 2000}, {"building": "922 Mass Ave", "room": "306R", "category": "private2br", "groupId": "922 Mass Ave|306L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2250}, {"building": "922 Mass Ave", "room": "307L", "category": "private2br", "groupId": "922 Mass Ave|307L", "sqft": "581", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate":4400, "privateRate":2250}, {"building": "922 Mass Ave", "room": "307R", "category": "private2br", "groupId": "922 Mass Ave|307L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2100}, {"building": "922 Mass Ave", "room": "401L", "category": "private2br", "groupId": "922 Mass Ave|401L", "sqft": "475", "washerDryer": "Yes", "ac": "Yes", "dishwasher": "Yes", "microwave": "Yes", "cooktop": "Yes", "sofa": "Yes", "diningTable": "Yes", "oven": "-", "groupRate": 4350, "privateRate": 2250}, {"building": "922 Mass Ave", "room": "401R", "category": "private2br", "groupId": "922 Mass Ave|401L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate": 2100}, {"building": "922 Mass Ave", "room": "402", "category": "1br", "groupId": null, "sqft": "328", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "403", "category": "1br", "groupId": null, "sqft": "322", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "404", "category": "1br", "groupId": null, "sqft": "329", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Bartop with high chair", "oven": "-", "rate": 3400}, {"building": "922 Mass Ave", "room": "405L", "category": "private2br", "groupId": "922 Mass Ave|405L", "sqft": "522", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate": 4350, "privateRate": 2250}, {"building": "922 Mass Ave", "room": "405R", "category": "private2br", "groupId": "922 Mass Ave|405L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate": 2100}, {"building": "922 Mass Ave", "room": "406L", "category": "private2br", "groupId": "922 Mass Ave|406L", "sqft": "478", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate":4250, "privateRate": 2000}, {"building": "922 Mass Ave", "room": "406R", "category": "private2br", "groupId": "922 Mass Ave|406L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2250}, {"building": "922 Mass Ave", "room": "407L", "category": "private2br", "groupId": "922 Mass Ave|407L", "sqft": "581", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "Yes", "oven": "-", "groupRate":4400, "privateRate":2250}, {"building": "922 Mass Ave", "room": "407R", "category": "private2br", "groupId": "922 Mass Ave|407L", "sqft": "", "washerDryer": "", "ac": "", "dishwasher": "", "microwave": "", "cooktop": "", "sofa": "", "diningTable": "", "oven": "", "privateRate":2100}];
+
+// Fixed note from the source rate sheet — shown once above the Boston
+// table rather than per-row, since it's the same for every unit.
+const BOSTON_CLEANING_NOTE = "Exit Cleaning Fee & Restocking Fee: Private Room $300 · 1 Bedroom Apartment $300 · 2 Bedroom Apartment $600";
+
+let currentProperty = "ny"; // "ny" | "boston"
+
+function getRoomsForBoston(building) {
+  return BOSTON_UNITS.filter(u => u.building === building).slice().sort((a, b) => {
+    const fa = getRoomFloor(a.room), fb = getRoomFloor(b.room);
+    if (fa !== fb) return fa - fb;
+    return a.room.localeCompare(b.room, undefined, { numeric: true });
+  });
+}
+
+function getBostonGroupsForBuilding(building) {
+  const map = new Map();
+  BOSTON_UNITS.filter(u => u.building === building && u.groupId).forEach(u => {
+    if (!map.has(u.groupId)) map.set(u.groupId, { groupId: u.groupId, rooms: [], category: u.category });
+    map.get(u.groupId).rooms.push(u.room);
+  });
+  return Array.from(map.values());
+}
+
+// mirrors localStorage "hc_boston_rate_sheet_v1":
+// { [building]: { rooms: { [room]: {rate} }, groups: { [groupId]: {rate} } } }
+let bostonRateStore = {};
+// mirrors localStorage "hc_boston_room_status_v1":
+// { [building]: { rooms: { [room]: "agreement"|"sold" }, groups: { [groupId]: {whole, status} } } }
+let bostonStatusStore = {};
+
+function ensureBostonStatusBuilding(building) {
+  if (!bostonStatusStore[building]) bostonStatusStore[building] = { rooms: {}, groups: {} };
+  if (!bostonStatusStore[building].rooms) bostonStatusStore[building].rooms = {};
+  if (!bostonStatusStore[building].groups) bostonStatusStore[building].groups = {};
+}
+
+function isBostonWholeLinked(building, groupId) {
+  const b = bostonStatusStore[building];
+  const g = b && b.groups && b.groups[groupId];
+  return !!(g && g.whole);
+}
+
+function getBostonRoomStatus(building, u) {
+  if (u.groupId && isBostonWholeLinked(building, u.groupId)) {
+    return bostonStatusStore[building].groups[u.groupId].status;
+  }
+  const b = bostonStatusStore[building];
+  const v = b && b.rooms && b.rooms[u.room];
+  return (v === "agreement" || v === "sold") ? v : "available";
+}
+
+// Boston equivalent of groupCombinedSeasonStatus — same rowspan-merge
+// problem (the Whole Apartment cell lives on the anchor room's row only),
+// no season split. Priority Agreement > Sold > Available across every room
+// in the group.
+function bostonGroupCombinedStatus(building, groupId) {
+  if (isBostonWholeLinked(building, groupId)) {
+    return bostonStatusStore[building].groups[groupId].status;
+  }
+  const group = getBostonGroupsForBuilding(building).find(g => g.groupId === groupId);
+  if (!group) return "available";
+  const statuses = group.rooms.map(r => {
+    const b = bostonStatusStore[building];
+    const v = b && b.rooms && b.rooms[r];
+    return (v === "agreement" || v === "sold") ? v : "available";
+  });
+  if (statuses.includes("agreement")) return "agreement";
+  if (statuses.includes("sold")) return "sold";
+  return "available";
+}
+
+function refreshBostonGroupWholeCellHighlight(building, groupId) {
+  const slug = slugify(building);
+  const gSlug = groupSlug(groupId);
+  const span = document.getElementById("brate_group_display_" + slug + "_" + gSlug);
+  const td = span && span.closest("td");
+  if (!td) return;
+  td.classList.remove("cell-status-agreement", "cell-status-sold");
+  const status = bostonGroupCombinedStatus(building, groupId);
+  if (status === "agreement") td.classList.add("cell-status-agreement");
+  else if (status === "sold") td.classList.add("cell-status-sold");
+}
+
+function setBostonRoomStatus(building, room, value) {
+  ensureBostonStatusBuilding(building);
+  const rooms = bostonStatusStore[building].rooms;
+  if (value === "available") delete rooms[room];
+  else rooms[room] = value;
+}
+
+function saveBostonStatusStore() {
+  localStorage.setItem("hc_boston_room_status_v1", JSON.stringify(bostonStatusStore));
+}
+
+function loadBostonRoomStatus() {
+  try {
+    const raw = localStorage.getItem("hc_boston_room_status_v1");
+    bostonStatusStore = raw ? JSON.parse(raw) : {};
+  } catch (e) { bostonStatusStore = {}; }
+}
+
+function onBostonStatusChange(selectEl) {
+  const building = selectEl.getAttribute("data-building");
+  const room = selectEl.getAttribute("data-room");
+  const groupId = selectEl.getAttribute("data-group-id") || null;
+  const value = selectEl.value;
+  ensureBostonStatusBuilding(building);
+  setBostonRoomStatus(building, room, value);
+  if (groupId && isBostonWholeLinked(building, groupId)) {
+    bostonStatusStore[building].groups[groupId].status = value;
+    const group = getBostonGroupsForBuilding(building).find(g => g.groupId === groupId);
+    (group ? group.rooms : []).forEach(r => setBostonRoomStatus(building, r, value));
+  }
+  // resetGenderIfAvailable already resets gender for every room in `room`'s
+  // group (not just `room` itself), so one call here covers both cases above.
+  resetGenderIfAvailable(building, room, value, null);
+  saveGenderStore();
+  saveBostonStatusStore();
+  refreshBostonBuildingStatusVisuals(building);
+  updateBostonStatusSummary(building);
+}
+
+function onBostonWholeToggle(checkboxEl) {
+  const building = checkboxEl.getAttribute("data-building");
+  const groupId = checkboxEl.getAttribute("data-group-id");
+  const room = checkboxEl.getAttribute("data-room");
+  const slug = slugify(building);
+  ensureBostonStatusBuilding(building);
+  const group = getBostonGroupsForBuilding(building).find(g => g.groupId === groupId);
+  if (checkboxEl.checked) {
+    const selEl = document.getElementById("bstatus_" + slug + "_" + slugify(room));
+    const value = selEl ? selEl.value : "available";
+    bostonStatusStore[building].groups[groupId] = { whole: true, status: value };
+    (group ? group.rooms : []).forEach(r => setBostonRoomStatus(building, r, value));
+  } else {
+    if (bostonStatusStore[building].groups[groupId]) delete bostonStatusStore[building].groups[groupId];
+  }
+  saveBostonStatusStore();
+  refreshBostonBuildingStatusVisuals(building);
+  updateBostonStatusSummary(building);
+}
+
+function refreshBostonRoomRowVisual(building, u) {
+  const slug = slugify(building);
+  const roomSlug = slugify(u.room);
+  const row = document.getElementById("brow_" + slug + "_" + roomSlug);
+  if (!row) return;
+  const status = getBostonRoomStatus(building, u);
+  const whole = u.groupId ? isBostonWholeLinked(building, u.groupId) : false;
+  row.classList.remove("boston-status-agreement", "boston-status-sold");
+  if (status === "agreement") row.classList.add("boston-status-agreement");
+  if (status === "sold") row.classList.add("boston-status-sold");
+  if (u.groupId) refreshBostonGroupWholeCellHighlight(building, u.groupId);
+  const sel = document.getElementById("bstatus_" + slug + "_" + roomSlug);
+  if (sel && sel.value !== status) sel.value = status;
+  const chk = document.getElementById("bstatusWhole_" + slug + "_" + roomSlug);
+  if (chk) chk.checked = whole;
+  const tag = document.getElementById("bstatusTag_" + slug + "_" + roomSlug);
+  if (tag) {
+    if (whole) { tag.textContent = "Whole Apt"; tag.className = "status-tag status-tag-whole"; }
+    else if (u.groupId && status !== "available") { tag.textContent = "Private"; tag.className = "status-tag status-tag-private"; }
+    else { tag.textContent = ""; tag.className = "status-tag"; }
+  }
+}
+
+function refreshBostonBuildingStatusVisuals(building) {
+  getRoomsForBoston(building).forEach(u => refreshBostonRoomRowVisual(building, u));
+}
+
+function computeBostonStatusCounts(building) {
+  const rooms = getRoomsForBoston(building);
+  const counts = { total: rooms.length, agreement: 0, sold: 0 };
+  rooms.forEach(u => {
+    const st = getBostonRoomStatus(building, u);
+    if (st === "agreement") counts.agreement++;
+    else if (st === "sold") counts.sold++;
+  });
+  counts.available = counts.total - counts.agreement - counts.sold;
+  return counts;
+}
+
+function buildBostonStatusSummaryLabel(building) {
+  const c = computeBostonStatusCounts(building);
+  const bits = [c.available + " available"];
+  if (c.agreement) bits.push(c.agreement + " issued");
+  if (c.sold) bits.push(c.sold + " sold");
+  return "· " + bits.join(", ");
+}
+
+function updateBostonStatusSummary(building) {
+  const slug = slugify(building);
+  const el = document.getElementById("statusSummary_" + slug);
+  if (el) el.textContent = buildBostonStatusSummaryLabel(building);
+}
+
+// mirrors localStorage "hc_boston_rate_sheet_v1":
+// { [building]: { rooms: { [room]: {ia, fullupfront} } } }
+// Column layout mirrors NY exactly: Status -> IA Rate ($/mo) -> Whole
+// Apartment (Full Upfront) -> Option 3 (Full Upfront) -> Option 2 (2
+// Instalments) -> Option 1 (Monthly). Whole Apartment is auto-summed from
+// each room's own Option 3 (Full Upfront) value (never manually entered),
+// same as NY's getGroupFullUpfrontRate — Boston's source sheet already
+// confirms the whole-apartment discounted rate always equals the sum of its
+// two private-room rates (e.g. 105L $2,250 + 105R $2,100 = $4,350).
+function getBostonIaRate(building, room) {
+  const b = bostonRateStore[building];
+  const r = b && b.rooms && b.rooms[room];
+  const v = r ? parseFloat(r.ia) : NaN;
+  return v;
+}
+
+function getBostonFullUpfrontRate(building, room) {
+  const b = bostonRateStore[building];
+  const r = b && b.rooms && b.rooms[room];
+  const v = r ? parseFloat(r.fullupfront) : NaN;
+  return v;
+}
+
+// Reads live from each member room's Full Upfront <input> (not the saved
+// store) so the Whole Apartment display is correct immediately on first
+// render too, before anything has been explicitly saved — same reasoning as
+// recomputeBostonRoomAutoOptions below.
+function getBostonGroupFullUpfrontRate(building, slug, groupId) {
+  const group = getBostonGroupsForBuilding(building).find(g => g.groupId === groupId);
+  if (!group) return NaN;
+  let sum = 0, allSet = true;
+  group.rooms.forEach(room => {
+    const el = document.getElementById("brate_fullupfront_" + slug + "_" + slugify(room));
+    const rv = el ? parseFloat(el.value) : NaN;
+    if (!rv || isNaN(rv) || rv <= 0) allSet = false;
+    else sum += rv;
+  });
+  return allSet ? sum : NaN;
+}
+
+// Auto-computed (read-only) Option 2 (2 Instalments, +$200) / Option 1
+// (Monthly, +$500) — derived from Option 3 (Full Upfront), the same formula
+// NY's Fall columns use.
+function recomputeBostonRoomAutoOptions(slug, roomSlug) {
+  const fullEl = document.getElementById("brate_fullupfront_" + slug + "_" + roomSlug);
+  if (!fullEl) return;
+  const full = parseFloat(fullEl.value) || 0;
+  const opt2 = document.getElementById("brate_opt2_" + slug + "_" + roomSlug);
+  const opt1 = document.getElementById("brate_opt1_" + slug + "_" + roomSlug);
+  if (opt2) opt2.value = full ? full + 200 : "";
+  if (opt1) opt1.value = full ? full + 500 : "";
+}
+
+function recomputeBostonGroupDisplay(building, slug, g) {
+  const gSlug = groupSlug(g.groupId);
+  const disp = document.getElementById("brate_group_display_" + slug + "_" + gSlug);
+  if (!disp) return;
+  const full = getBostonGroupFullUpfrontRate(building, slug, g.groupId);
+  disp.textContent = (full && !isNaN(full) && full > 0) ? money(full) : "—";
+}
+
+function recomputeAllBostonAutoOptions() {
+  BOSTON_BUILDINGS.forEach(building => {
+    const slug = slugify(building);
+    getRoomsForBoston(building).forEach(u => recomputeBostonRoomAutoOptions(slug, slugify(u.room)));
+    getBostonGroupsForBuilding(building).forEach(g => recomputeBostonGroupDisplay(building, slug, g));
+  });
+}
+
+const BOSTON_AMENITY_FIELDS = [
+  ["washerDryer", "Stacked Washer & Dryer"],
+  ["ac", "AC"],
+  ["dishwasher", "Dishwasher"],
+  ["microwave", "Microwave Oven"],
+  ["cooktop", "Electric Cooktop"],
+  ["sofa", "Sofa"],
+  ["diningTable", "Dining Table"],
+  ["oven", "Oven"],
+  ["sqft", "Sq Ft"],
+];
+
+// Fields that are a standard fixture in every Boston unit (per the source
+// rate sheet, which only recorded "Yes" once per unit type) — blank on any
+// row just means "same as every other unit," not "not present." Sq Ft,
+// Oven, and Dining Table DO vary per row (or are legitimately blank/TBA),
+// so those are shown exactly as entered, never defaulted.
+const BOSTON_STANDARD_FIELDS = new Set(["washerDryer", "ac", "dishwasher", "microwave", "cooktop", "sofa"]);
+
+function bostonAmenityValue(u, field) {
+  const raw = u[field];
+  if (raw !== undefined && raw !== null && String(raw).trim() !== "") return raw;
+  return BOSTON_STANDARD_FIELDS.has(field) ? "Yes" : "";
+}
+
+function buildBostonRoomTableHtml(building, slug, rooms) {
+  const groups = getBostonGroupsForBuilding(building);
+  const groupFirstRowIdx = new Map();
+  rooms.forEach((u, i) => { if (u.groupId && !groupFirstRowIdx.has(u.groupId)) groupFirstRowIdx.set(u.groupId, i); });
+
+  const rows = rooms.map((u, roomIdx) => {
+    const roomSlug = slugify(u.room);
+    const label = u.category === "1br" ? "1 Bedroom" : "Private Room / 2BR";
+    const isGroupBlockStart = !!(u.groupId && groupFirstRowIdx.get(u.groupId) === roomIdx);
+    const groupSize = u.groupId ? (groups.find(g => g.groupId === u.groupId).rooms.length || 1) : 1;
+    const anchorUnit = u.groupId ? BOSTON_UNITS.find(x => x.building === building && x.groupId === u.groupId && x.groupRate !== undefined) || u : u;
+
+    const status = getBostonRoomStatus(building, u);
+    const whole = u.groupId ? isBostonWholeLinked(building, u.groupId) : false;
+    const rowClasses = status === "agreement" ? "boston-status-agreement" : (status === "sold" ? "boston-status-sold" : "");
+    const select = `<select class="room-status-select" id="bstatus_${slug}_${roomSlug}" data-building="${building}" data-room="${u.room}" data-group-id="${u.groupId || ""}" onchange="onBostonStatusChange(this)">` +
+      `<option value="available"${status === "available" ? " selected" : ""}>Available</option>` +
+      `<option value="agreement"${status === "agreement" ? " selected" : ""}>Agreement Issued</option>` +
+      `<option value="sold"${status === "sold" ? " selected" : ""}>Payment Received</option>` +
+    `</select>`;
+    const wholeToggle = u.groupId
+      ? `<label class="status-whole-toggle"><input type="checkbox" id="bstatusWhole_${slug}_${roomSlug}" data-building="${building}" data-room="${u.room}" data-group-id="${u.groupId}" onchange="onBostonWholeToggle(this)"${whole ? " checked" : ""}> Whole Apt</label>`
+      : "";
+    let tagText = "", tagClass = "status-tag";
+    if (whole) { tagText = "Whole Apt"; tagClass = "status-tag status-tag-whole"; }
+    else if (u.groupId && status !== "available") { tagText = "Private"; tagClass = "status-tag status-tag-private"; }
+    const statusCell = `<td data-label="Status"><div class="status-cell">${select}${wholeToggle}<span class="${tagClass}" id="bstatusTag_${slug}_${roomSlug}">${tagText}</span></div></td>`;
+
+    let amenityCells;
+    if (amenityColumnsCollapsed) {
+      amenityCells = "";
+    } else if (!u.groupId) {
+      amenityCells = BOSTON_AMENITY_FIELDS.map(([f, l]) => `<td class="amenity-col" data-label="${l}">${bostonAmenityValue(u, f)}</td>`).join("");
+    } else if (isGroupBlockStart) {
+      amenityCells = BOSTON_AMENITY_FIELDS.map(([f, l]) => `<td class="amenity-col" data-label="${l}" rowspan="${groupSize}">${bostonAmenityValue(anchorUnit, f)}</td>`).join("");
+    } else {
+      amenityCells = "";
+    }
+
+    const savedFull = getBostonFullUpfrontRate(building, u.room);
+    const fullVal = !isNaN(savedFull)
+      ? savedFull
+      : (u.category === "1br" ? (u.rate !== undefined ? u.rate : "") : (u.privateRate !== undefined ? u.privateRate : ""));
+    // IA Rate has no source-spreadsheet default of its own — for now, staff
+    // have set its base to match the selling (Full Upfront) rate, so it
+    // falls back to the SAME baked-in default as fullVal above whenever no
+    // explicit IA value has been saved. This makes IA Rate visible to
+    // everyone who opens the file, not just whoever manually typed one in.
+    const savedIa = getBostonIaRate(building, u.room);
+    const iaVal = !isNaN(savedIa) ? savedIa : fullVal;
+
+    const iaCell = `<td data-label="IA Rate ($/mo)"><input type="number" class="rs-editable" id="brate_ia_${slug}_${roomSlug}" min="0" value="${iaVal}" oninput="saveBostonRateSheet()" disabled></td>`;
+
+    let wholeCell;
+    if (!u.groupId) {
+      wholeCell = `<td data-label="Whole Apartment (Full Upfront)" class="rs-na rs-whole-col">&mdash;</td>`;
+    } else if (isGroupBlockStart) {
+      const gSlug = groupSlug(u.groupId);
+      // See groupCombinedSeasonStatus's comment (NY version) — the merged
+      // cell lives on the anchor room's row only, so its highlight is driven
+      // by the GROUP's combined status, not just the anchor room's status.
+      const cellStatus = bostonGroupCombinedStatus(building, u.groupId);
+      const cellCls = cellStatus === "agreement" ? " cell-status-agreement" : cellStatus === "sold" ? " cell-status-sold" : "";
+      wholeCell = `<td data-label="Whole Apartment (Full Upfront)" class="rs-whole-col${cellCls}" rowspan="${groupSize}"><span class="rs-group-display" id="brate_group_display_${slug}_${gSlug}">&mdash;</span></td>`;
+    } else {
+      wholeCell = "";
+    }
+
+    const fullCell = `<td data-label="Option 3 (Full Upfront)"><input type="number" class="rs-editable" id="brate_fullupfront_${slug}_${roomSlug}" min="0" value="${fullVal}" oninput="saveBostonRateSheet()" disabled></td>`;
+    const opt2Cell = `<td data-label="Option 2 (2 Instalments)"><input type="number" id="brate_opt2_${slug}_${roomSlug}" readonly tabindex="-1"></td>`;
+    const opt1Cell = `<td data-label="Option 1 (Monthly)"><input type="number" id="brate_opt1_${slug}_${roomSlug}" readonly tabindex="-1"></td>`;
+
+    const genderCell = buildGenderCellHtml(building, u);
+
+    return `<tr id="brow_${slug}_${roomSlug}" class="${rowClasses}">` +
+      `<td data-label="Unit No">${u.room}</td>` +
+      `<td data-label="Category">${label}</td>` +
+      amenityCells +
+      genderCell +
+      statusCell +
+      iaCell +
+      wholeCell +
+      fullCell +
+      opt2Cell +
+      opt1Cell +
+    `</tr>`;
+  }).join("");
+
+  const amenityHeader = amenityColumnsCollapsed ? "" : BOSTON_AMENITY_FIELDS.map(([f, l]) => `<th class="amenity-col">${l}</th>`).join("");
+  return `<div class="rate-table-scroll"><table class="rate-table"><thead><tr>` +
+    `<th>Unit No</th><th>Category</th>${amenityHeader}<th>Gender</th><th>Status</th><th>IA Rate ($/mo)</th><th class="rs-whole-col">Whole Apartment (Full Upfront)</th><th>Option 3 (Full Upfront)</th><th>Option 2 (2 Instalments)</th><th>Option 1 (Monthly)</th>` +
+  `</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function buildBostonRateCardHtml(building) {
+  const slug = slugify(building);
+  const rooms = getRoomsForBoston(building);
+  const countLabel = rooms.length + " unit" + (rooms.length === 1 ? "" : "s");
+  const body = buildBostonRoomTableHtml(building, slug, rooms);
+  const statusSummary = buildBostonStatusSummaryLabel(building);
+  const amenityToggleRow = `<div class="amenity-toggle-row"><button type="button" class="amenity-toggle-btn" onclick="toggleAmenityColumns()">${amenityColumnsCollapsed ? "▸" : "▾"} Unit Details</button></div>`;
+  const feeNote = `<div class="commission-note" style="margin-bottom:10px;">${BOSTON_CLEANING_NOTE}</div>`;
+  return `<div class="rate-card" id="rateCard_${slug}" data-building-name="${building.toLowerCase()}">` +
+    `<button type="button" class="rate-card-header" onclick="toggleRateCard('${slug}')" aria-expanded="false">` +
+      `<span class="rate-card-chevron">▸</span>` +
+      `<span class="rate-card-title">${building}</span>` +
+      `<span class="rate-card-badge">${countLabel}</span>` +
+      `<span class="rate-card-status-summary" id="statusSummary_${slug}">${statusSummary}</span>` +
+    `</button>` +
+    `<div class="rate-card-body">${amenityToggleRow}${feeNote}${body}</div>` +
+  `</div>`;
+}
+
+function renderBostonRateSheetTable() {
+  const wrap = document.getElementById("rateCardsWrap");
+  wrap.innerHTML = BOSTON_BUILDINGS.map(buildBostonRateCardHtml).join("");
+  document.querySelectorAll("#ratesheetTab .rs-editable").forEach(el => { el.disabled = !rateSheetUnlocked; });
+  recomputeAllBostonAutoOptions();
+  filterRateTableBoston();
+}
+
+function saveBostonRateSheet() {
+  BOSTON_BUILDINGS.forEach(building => {
+    const slug = slugify(building);
+    if (!bostonRateStore[building]) bostonRateStore[building] = { rooms: {} };
+    if (!bostonRateStore[building].rooms) bostonRateStore[building].rooms = {};
+    getRoomsForBoston(building).forEach(u => {
+      const roomSlug = slugify(u.room);
+      const iaEl = document.getElementById("brate_ia_" + slug + "_" + roomSlug);
+      const fullEl = document.getElementById("brate_fullupfront_" + slug + "_" + roomSlug);
+      if (iaEl || fullEl) {
+        bostonRateStore[building].rooms[u.room] = {
+          ia: iaEl ? iaEl.value : "",
+          fullupfront: fullEl ? fullEl.value : "",
+        };
+      }
+    });
+  });
+  localStorage.setItem("hc_boston_rate_sheet_v1", JSON.stringify(bostonRateStore));
+  recomputeAllBostonAutoOptions();
+  showSaved();
+}
+
+function loadBostonRateSheet() {
+  try {
+    const raw = localStorage.getItem("hc_boston_rate_sheet_v1");
+    bostonRateStore = raw ? JSON.parse(raw) : {};
+  } catch (e) { bostonRateStore = {}; }
+  loadBostonRoomStatus();
+}
+
+// Simple single-property search: matches on room number only (there's one
+// Boston building, so no "building unit" shorthand needed like NY's).
+function filterRateTableBoston() {
+  const raw = (document.getElementById("rateTableFilter").value || "").trim().toLowerCase();
+  document.querySelectorAll("#rateCardsWrap .rate-card").forEach(card => { card.style.display = ""; card.classList.add("expanded"); });
+  document.querySelectorAll("#rateCardsWrap tr[id^='brow_']").forEach(row => row.classList.remove("rate-row-search-hidden"));
+  document.querySelectorAll("#rateCardsWrap .budget-stretch-badge").forEach(b => b.remove());
+
+  if (raw) {
+    BOSTON_BUILDINGS.forEach(building => {
+      const slug = slugify(building);
+      getRoomsForBoston(building).forEach(u => {
+        const row = document.getElementById("brow_" + slug + "_" + slugify(u.room));
+        if (!row) return;
+        if (!u.room.toLowerCase().includes(raw)) row.classList.add("rate-row-search-hidden");
+      });
+    });
+  }
+
+  // ── Client request filter (budget / room type) — Boston has no COO field,
+  // so only these two apply here (see filterRateTable() for the NY version,
+  // which also supports "Same COO as unit").
+  const budget = parseFloat(document.getElementById("filterBudget").value);
+  const hasBudget = !isNaN(budget) && budget > 0;
+  const roomType = document.getElementById("filterRoomType").value;
+  const genderFilter = document.getElementById("filterGender").value;
+  if (!hasBudget && !roomType && !genderFilter) return;
+
+  BOSTON_BUILDINGS.forEach(building => {
+    const slug = slugify(building);
+    const roomsInBuilding = getRoomsForBoston(building);
+    const groups = getBostonGroupsForBuilding(building);
+    const passes = new Map();
+    const stretch = new Map();
+
+    roomsInBuilding.forEach(u => {
+      const row = document.getElementById("brow_" + slug + "_" + slugify(u.room));
+      if (!row || row.classList.contains("rate-row-search-hidden")) { passes.set(u.room, false); return; }
+
+      let ok = true;
+      let isStretch = false;
+      if (roomType && !roomTypeBucketMatches(roomType, u.category)) ok = false;
+      if (ok && hasBudget) {
+        // "2/3/4 Bedroom" prices against the whole apartment's total, same
+        // reasoning as the NY version above — every other bucket prices
+        // against just this room's own rate. A price over budget but within
+        // BUDGET_STRETCH_AMOUNT still passes as a "stretch" option (badged
+        // below) instead of being excluded outright.
+        const useGroupTotal = roomType === "whole_2_3_4br" && u.groupId;
+        const rv = useGroupTotal
+          ? bostonEffectiveGroupFullUpfront(building, u.groupId)
+          : bostonEffectiveFullUpfront(building, u.room);
+        if (!rv || isNaN(rv) || rv <= 0 || rv > budget + BUDGET_STRETCH_AMOUNT) ok = false;
+        else if (rv > budget) isStretch = true;
+      }
+      if (ok && genderFilter && getRoomGender(building, u.room) !== genderFilter) ok = false;
+      if (ok && getBostonRoomStatus(building, u) !== "available") ok = false;
+      passes.set(u.room, ok);
+      stretch.set(u.room, ok && isStretch);
+    });
+
+    groups.forEach(g => {
+      const anyPass = g.rooms.some(r => passes.get(r));
+      if (anyPass) g.rooms.forEach(r => passes.set(r, true));
+    });
+
+    let anyVisible = false;
+    roomsInBuilding.forEach(u => {
+      const row = document.getElementById("brow_" + slug + "_" + slugify(u.room));
+      if (!row) return;
+      if (passes.get(u.room)) {
+        anyVisible = true;
+        if (stretch.get(u.room)) {
+          const cell = row.querySelector('td[data-label="Category"]');
+          if (cell && !cell.querySelector(".budget-stretch-badge")) {
+            const badge = document.createElement("span");
+            badge.className = "status-tag budget-stretch-badge";
+            badge.textContent = "+$" + BUDGET_STRETCH_AMOUNT + " stretch";
+            cell.appendChild(badge);
+          }
+        }
+      } else row.classList.add("rate-row-search-hidden");
+    });
+
+    const card = document.getElementById("rateCard_" + slug);
+    if (card) card.style.display = anyVisible ? "" : "none";
+  });
+}
+
+// Switches the whole Rate Sheet tab between the two properties: swaps which
+// building set/table renderer feeds #rateCardsWrap, resets the search box,
+// and updates the "Jump to building" dropdown + toggle button styling.
+function switchProperty(p) {
+  currentProperty = p;
+  const nyBtn = document.getElementById("propBtnNY");
+  const bosBtn = document.getElementById("propBtnBoston");
+  if (nyBtn) nyBtn.classList.toggle("active", p === "ny");
+  if (bosBtn) bosBtn.classList.toggle("active", p === "boston");
+  const jumpWrap = document.getElementById("rateSheetBuildingWrap");
+  if (jumpWrap) jumpWrap.style.display = p === "boston" ? "none" : "";
+  const filterInput = document.getElementById("rateTableFilter");
+  if (filterInput) filterInput.value = "";
+  const filterLabel = document.getElementById("rateTableFilterLabel");
+  if (filterLabel) filterLabel.textContent = p === "boston" ? "Search unit" : 'Search (building name, or "building unit" e.g. 230 1R)';
+  if (filterInput) filterInput.placeholder = p === "boston" ? "e.g. 105L" : "e.g. Bleecker, or 230 1R";
+  const cooWrap = document.getElementById("filterSameCooWrap");
+  if (cooWrap) cooWrap.style.display = p === "boston" ? "none" : "";
+  // Boston only has 1BR / private-room-in-a-2BR / whole-2BR units (no
+  // studio, no 3-4BR), so the room type dropdown's wording adapts —
+  // same underlying bucket values, just clearer labels for what's actually
+  // in that building.
+  const optStudio1br = document.getElementById("roomTypeOptStudio1br");
+  const optPrivate = document.getElementById("roomTypeOptPrivate");
+  const optWhole = document.getElementById("roomTypeOptWhole");
+  if (optStudio1br) optStudio1br.textContent = p === "boston" ? "1 Bedroom" : "Studio, 1 Bedroom";
+  if (optPrivate) optPrivate.textContent = p === "boston" ? "Private Room" : "Private room";
+  if (optWhole) optWhole.textContent = p === "boston" ? "2 Bedroom" : "2/3/4 Bedroom";
+  renderRateSheetTable();
+}
+
+function clearClientFilters() {
+  document.getElementById("filterBudget").value = "";
+  document.getElementById("filterRoomType").value = "";
+  document.getElementById("filterSameCoo").value = "no";
+  document.getElementById("filterGender").value = "";
+  filterRateTable();
+}
+
 // ── INIT ────────────────────────────────────────────────────────
 function populateBuildingDropdowns() {
   const rsSelect = document.getElementById("rateSheetBuilding");
   const recapSelect = document.getElementById("recapBuilding");
   BUILDINGS.forEach(b => {
     const opt1 = document.createElement("option"); opt1.value=b; opt1.textContent=b; rsSelect.appendChild(opt1);
-    const opt2 = document.createElement("option"); opt2.value=b; opt2.textContent=b; recapSelect.appendChild(opt2);
   });
+
+  const nyGroup = document.createElement("optgroup"); nyGroup.label = "New York";
+  BUILDINGS.forEach(b => {
+    const opt = document.createElement("option"); opt.value=b; opt.textContent=b; nyGroup.appendChild(opt);
+  });
+  recapSelect.appendChild(nyGroup);
+
+  const bosGroup = document.createElement("optgroup"); bosGroup.label = "Boston";
+  BOSTON_BUILDINGS.forEach(b => {
+    const opt = document.createElement("option"); opt.value=b; opt.textContent=b; bosGroup.appendChild(opt);
+  });
+  recapSelect.appendChild(bosGroup);
 }
 
 window.addEventListener("DOMContentLoaded", function() {
   populateBuildingDropdowns();
   loadRateSheet();
-  updateBaseRateDisplay();
   updateSellingRateDisplay();
+  updateBaseRateDisplay();
   updateInternalPanel();
 });
 </script>
