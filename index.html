@@ -96,7 +96,13 @@
   .btn-copy { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; padding: 6px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; color: var(--text-secondary); cursor: pointer; font-family: inherit; transition: all 0.15s; }
   .btn-copy:hover { background: #f0f0f0; }
   .btn-copy.copied { background: #e8eaf3; border-color: #303c6c; color: #303c6c; }
+  .btn-copy:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-copy:disabled:hover { background: #fff; }
   .output-text { padding: 1.25rem; font-family: "SFMono-Regular", "Consolas", monospace; font-size: 12.5px; line-height: 1.85; color: var(--text); white-space: pre-wrap; word-break: break-word; min-height: 300px; max-height: 620px; overflow-y: auto; }
+  .output-text a { color: #2b5faa; text-decoration: underline; }
+  .quote-links-status { font-size: 12.5px; color: var(--text-secondary); background: #f8f8f8; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; line-height: 1.7; }
+  .quote-links-status .link-set { color: #2f7a4f; }
+  .quote-links-status .link-missing { color: var(--text-hint); }
 
   .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; text-align: center; color: var(--text-hint); }
   .empty-icon { font-size: 36px; margin-bottom: 1rem; opacity: 0.4; }
@@ -273,16 +279,17 @@
 </header>
 
 <div class="tab-nav">
-  <button class="tab-btn active" id="tabBtnRecap" onclick="switchTab('recap')">Recap Generator</button>
-  <button class="tab-btn" id="tabBtnRateSheet" onclick="switchTab('ratesheet')">Rate Sheet</button>
+  <button class="tab-btn active" id="tabBtnRateSheet" onclick="switchTab('ratesheet')">Rate Sheet</button>
+  <button class="tab-btn" id="tabBtnQuote" onclick="switchTab('quote')">Apartment Details</button>
+  <button class="tab-btn" id="tabBtnRecap" onclick="switchTab('recap')">Recap Generator</button>
 </div>
 
-<div id="ratesheetTab" class="tab-panel">
+<div id="ratesheetTab" class="tab-panel active">
   <div class="rate-sheet-page">
     <div class="panel">
       <div class="panel-head">
         <div class="panel-icon">💲</div>
-        <h2>Next Year's Rate Sheet</h2>
+        <h2>Rate Sheet</h2>
       </div>
       <div class="panel-body">
 
@@ -371,7 +378,7 @@
   </div>
 </div>
 
-<div id="recapTab" class="tab-panel active">
+<div id="recapTab" class="tab-panel">
 <div class="page">
   <div>
     <div class="panel">
@@ -518,6 +525,70 @@
         <div class="empty-state">
           <div class="empty-icon">📄</div>
           <p>Fill in the details on the left.<br>The recap will appear here automatically.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="quoteTab" class="tab-panel">
+<div class="page">
+  <div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-icon">✉️</div>
+        <h2>Apartment details</h2>
+      </div>
+      <div class="panel-body">
+
+        <div class="form-group">
+          <label>Apartment</label>
+          <input type="text" id="quoteApartmentInput" placeholder="e.g. 205 or 2.05" oninput="onQuoteApartmentInput()">
+          <span class="date-parsed" id="quoteApartmentParsed"></span>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label>Available from</label>
+            <div class="date-wrap">
+              <input type="text" id="quoteMoveIn" placeholder="e.g. 24 Aug 2026" oninput="onQuoteDateInput('quoteMoveIn')" onpaste="onQuoteDatePaste(event,'quoteMoveIn')">
+              <input type="date" id="quoteMoveInPicker" onchange="onQuotePickerChange('quoteMoveIn')">
+            </div>
+            <span class="date-parsed" id="quoteMoveInParsed"></span>
+          </div>
+          <div>
+            <label>Available to</label>
+            <div class="date-wrap">
+              <input type="text" id="quoteMoveOut" placeholder="e.g. 31 May 2027" oninput="onQuoteDateInput('quoteMoveOut')" onpaste="onQuoteDatePaste(event,'quoteMoveOut')">
+              <input type="date" id="quoteMoveOutPicker" onchange="onQuotePickerChange('quoteMoveOut')">
+            </div>
+            <span class="date-parsed" id="quoteMoveOutParsed"></span>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="form-group">
+          <label>Video tour &amp; info pack links</label>
+          <div id="quoteLinksStatus" class="quote-links-status">Type an apartment number to see its links.</div>
+        </div>
+        <label style="margin-bottom:0; display:block; font-size:11px; color:var(--text-hint);">Share the video tour and info pack URLs to have them added.</label>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="right-col">
+    <div class="panel">
+      <div class="output-toolbar">
+        <span class="output-meta" id="quoteOutputMeta">Type an apartment number to begin</span>
+        <button class="btn-copy" id="quoteCopyBtn" onclick="copyQuoteText()" disabled>⎘ Copy quote</button>
+      </div>
+      <div id="quoteOutputArea">
+        <div class="empty-state">
+          <div class="empty-icon">📄</div>
+          <p>Type an apartment number on the left.<br>The quote will appear here automatically.</p>
         </div>
       </div>
     </div>
@@ -2216,11 +2287,12 @@ function lockRateSheet() {
 
 // ── TABS ───────────────────────────────────────────────────────
 function switchTab(name) {
-  const isRecap = name === "recap";
-  document.getElementById("recapTab").className = "tab-panel" + (isRecap ? " active" : "");
-  document.getElementById("ratesheetTab").className = "tab-panel" + (!isRecap ? " active" : "");
-  document.getElementById("tabBtnRecap").className = "tab-btn" + (isRecap ? " active" : "");
-  document.getElementById("tabBtnRateSheet").className = "tab-btn" + (!isRecap ? " active" : "");
+  document.getElementById("recapTab").className = "tab-panel" + (name === "recap" ? " active" : "");
+  document.getElementById("ratesheetTab").className = "tab-panel" + (name === "ratesheet" ? " active" : "");
+  document.getElementById("quoteTab").className = "tab-panel" + (name === "quote" ? " active" : "");
+  document.getElementById("tabBtnRecap").className = "tab-btn" + (name === "recap" ? " active" : "");
+  document.getElementById("tabBtnRateSheet").className = "tab-btn" + (name === "ratesheet" ? " active" : "");
+  document.getElementById("tabBtnQuote").className = "tab-btn" + (name === "quote" ? " active" : "");
 }
 
 // ── BASE / SELLING RATE LOOKUP (from Rate Sheet tab) ──
@@ -3274,6 +3346,303 @@ function clearClientFilters() {
 }
 
 // ── INIT ────────────────────────────────────────────────────────
+// ── UNIT QUOTE (Recap-style but plain, client-ready quote text with a real
+// clickable video-tour link) — a fully separate tab/state from the Recap
+// Generator so switching buildings/dates here never touches the recap's own
+// selection. Only ONE template exists so far (Boston's whole 2BR/2BA
+// apartment wording, from the sample Jonia provided); every other
+// building/category combo shows a "no template yet" message until Jonia
+// shares that wording too — see buildUnitQuoteResult() below.
+// Video tour / info pack links are maintained directly in this file (not
+// typed in by staff through the UI). Keyed by UNIT CODE (the ".01"/".02"/etc.
+// part of the apartment number — see buildUnitQuoteResult's aptNumber logic),
+// NOT by specific room/floor — Jonia's links are shared across every floor
+// of the same unit type (e.g. the ".01" link covers 2.01, 3.01, and 4.01
+// alike), same as the video tours themselves are one representative
+// recording per layout rather than one per physical unit.
+// { [building]: { [unitCode]: { videoTour, infoPack } } } — add entries as
+// links are shared, e.g.:
+//   "922 Mass Ave": { "01": { videoTour: "https://...", infoPack: "https://..." } }
+const UNIT_LINKS = {
+  "922 Mass Ave": {
+    "01": { videoTour: "https://canva.link/ref0dteb8la9eai", infoPack: "https://canva.link/lx0m5hc4v32ri6r" },
+    "02": { videoTour: "https://canva.link/lnieiu8vov6ynv8", infoPack: "https://canva.link/iw076drcktcav2d" },
+    "03": { videoTour: "https://canva.link/82tlji2nr4v0gk0", infoPack: "https://canva.link/t7qwqg5yk9qz9xx" },
+    "04": { videoTour: "https://canva.link/2pml4y382x67fcb", infoPack: "https://canva.link/f9bmmgro6nukhz6" },
+    "05": { videoTour: "https://canva.link/bfhuzq0rngwj1l1", infoPack: "https://canva.link/v0vra05z5hjekm0" },
+    "06": { videoTour: "https://canva.link/83ktz7pkd72f2mt", infoPack: "https://canva.link/4w0lb94kwvvj5wt" },
+    "07": { videoTour: "https://canva.link/ngfec292xlst3gu", infoPack: "https://canva.link/4w0lb94kwvvj5wt" },
+  },
+};
+
+// Derives the same "{floor}.{unitCode}" split buildUnitQuoteResult uses for
+// the apartment number, but returns just the unit-code half (e.g. "01"),
+// used as the UNIT_LINKS lookup key.
+function getUnitCode(target) {
+  const room = target.isGroup ? target.groupId.split("|")[1] : target.room;
+  const digits = room.replace(/\D/g, "");
+  return digits.length > 1 ? digits.slice(1).padStart(2, "0") : "";
+}
+
+function getUnitLink(building, unitCode, kind) {
+  const b = UNIT_LINKS[building];
+  const r = b && b[unitCode];
+  return (r && r[kind]) || "";
+}
+
+// Resolves free-text typed into #quoteApartmentInput straight to a
+// building+unit target — no building/unit dropdowns needed. Accepts either
+// the raw room number/code (e.g. "205", "205L", "110") or the "floor.unitcode"
+// notation the email templates themselves use (e.g. "2.05" -> room "205").
+// Boston is checked first since that's the only property with templates
+// right now; a bare group number like "205" (no L/R) resolves to the WHOLE
+// apartment, since that's the only category this tab currently generates for
+// private2br rooms. Falls back to a plain NY room-number match (first hit —
+// NY room codes can repeat across buildings, but no NY template exists yet
+// so this is just a basic lookup for when one's added later).
+function resolveQuoteApartment(query) {
+  const q = (query || "").trim();
+  if (!q) return null;
+  const qUpper = q.toUpperCase();
+
+  const aptCodeMatch = q.match(/^(\d)\.(\d{1,2})$/);
+  const roomKey = aptCodeMatch ? (aptCodeMatch[1] + aptCodeMatch[2].padStart(2, "0")) : qUpper;
+
+  let bUnit = BOSTON_UNITS.find(u => u.room.toUpperCase() === roomKey);
+  if (!bUnit) bUnit = BOSTON_UNITS.find(u => u.groupId && u.room.replace(/[LR]$/i, "").toUpperCase() === roomKey);
+  if (bUnit) {
+    if (bUnit.groupId) {
+      const g = getBostonGroupsForBuilding(bUnit.building).find(gr => gr.groupId === bUnit.groupId);
+      if (g) return { isGroup: true, building: bUnit.building, groupId: g.groupId, rooms: g.rooms, category: g.category, isBoston: true };
+    }
+    return { isGroup: false, building: bUnit.building, room: bUnit.room, category: bUnit.category, unit: bUnit, isBoston: true };
+  }
+
+  const nyUnit = UNITS.find(u => u.room.toUpperCase() === qUpper);
+  if (nyUnit) {
+    if (nyUnit.groupId) {
+      const g = getGroupsForBuilding(nyUnit.building).find(gr => gr.groupId === nyUnit.groupId);
+      if (g) return { isGroup: true, building: nyUnit.building, groupId: g.groupId, rooms: g.rooms, category: g.category, isBoston: false };
+    }
+    return { isGroup: false, building: nyUnit.building, room: nyUnit.room, category: nyUnit.category, unit: nyUnit, isBoston: false };
+  }
+
+  return null;
+}
+
+function getQuoteSelectedTarget() {
+  return resolveQuoteApartment(document.getElementById("quoteApartmentInput").value);
+}
+
+function onQuoteApartmentInput() {
+  const query = document.getElementById("quoteApartmentInput").value;
+  const target = resolveQuoteApartment(query);
+  const parsedEl = document.getElementById("quoteApartmentParsed");
+  const statusEl = document.getElementById("quoteLinksStatus");
+
+  if (!query.trim()) {
+    parsedEl.textContent = "";
+  } else if (target) {
+    const label = target.isGroup ? wholeApartmentLabel(target.category) || CATEGORY_LABELS[target.category] : CATEGORY_LABELS[target.category];
+    parsedEl.textContent = "✓ " + target.building + " — " + label;
+    parsedEl.style.color = "#7aab96";
+  } else {
+    parsedEl.textContent = "⚠ No matching unit found";
+    parsedEl.style.color = "#d4706b";
+  }
+
+  // Shows which of this unit's links (video tour / info pack) are already
+  // built into UNIT_LINKS above, so staff know at a glance whether a link is
+  // missing rather than typing anything in themselves.
+  if (!target) {
+    statusEl.innerHTML = "Type an apartment number to see its links.";
+  } else {
+    const key = getUnitCode(target);
+    const video = getUnitLink(target.building, key, "videoTour");
+    const infoPack = getUnitLink(target.building, key, "infoPack");
+    statusEl.innerHTML =
+      `Video tour: <span class="${video ? "link-set" : "link-missing"}">${video ? "✓ set" : "not added yet"}</span><br>` +
+      `Info pack: <span class="${infoPack ? "link-set" : "link-missing"}">${infoPack ? "✓ set" : "not added yet"}</span>`;
+  }
+  generateUnitQuote();
+}
+
+function onQuoteDateInput(id) {
+  const val = document.getElementById(id).value;
+  const dt = parseDate(val);
+  const parsedEl = document.getElementById(id+"Parsed");
+  if (dt) {
+    parsedEl.textContent = "✓ " + formatDisplay(dt);
+    parsedEl.style.color = "#7aab96";
+    document.getElementById(id+"Picker").value = toPickerValue(dt);
+  } else if (val.length > 4) {
+    parsedEl.textContent = "⚠ Format not recognised";
+    parsedEl.style.color = "#d4706b";
+  } else { parsedEl.textContent = ""; }
+  generateUnitQuote();
+}
+
+function onQuoteDatePaste(e, id) {
+  e.preventDefault();
+  const pasted = (e.clipboardData||window.clipboardData).getData("text").trim();
+  document.getElementById(id).value = pasted;
+  onQuoteDateInput(id);
+}
+
+function onQuotePickerChange(id) {
+  const dt = parseDate(document.getElementById(id+"Picker").value);
+  if (dt) { document.getElementById(id).value = formatDisplay(dt); onQuoteDateInput(id); }
+}
+
+function ordinal(n) {
+  const s = ["th","st","nd","rd"], v = n % 100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+
+let quoteGeneratedHtml = "";
+let quoteGeneratedText = "";
+
+// Returns {html, text} for the selected unit, or null if there's no
+// template yet for this building/category combination — sourced from
+// Jonia's "Working Sheet - Email Templates with Apartment Information - 922"
+// CSV, covering 922 Mass Ave's 2B2B (whole apartment) and 1B1B (standalone
+// room) categories.
+//
+// Apt numbering: the CSV lists 2B2B units as "2.01/3.01/4.01" (no "1.01")
+// and 1B1B units as "1.02/2.02/3.02/4.02" etc. — i.e. "{floor}.{last two
+// digits of the room number}", floor being the room's leading digit. This is
+// derived generically below (floor + last two digits) rather than hardcoded
+// per room, so it covers every 922 Mass Ave unit automatically. NOT
+// explicitly confirmed by the CSV: room 101 (1BR) and the floor-1
+// "Handicapped Unit" rooms 108/109/110 — these follow the same formula here
+// ("Apt 1.01", "Apt 1.08" etc.) but may need their own distinct wording
+// later since they have different amenities than the standard units this
+// template describes.
+function buildUnitQuoteResult(target, moveInStr, moveOutStr, videoLink, infoPackLink) {
+  const isWhole2br = target.isBoston && target.category === "private2br" && target.isGroup;
+  const is1br = target.isBoston && target.category === "1br" && !target.isGroup;
+  if (!isWhole2br && !is1br) return null;
+
+  const r3 = isWhole2br
+    ? bostonEffectiveGroupFullUpfront(target.building, target.groupId)
+    : bostonEffectiveFullUpfront(target.building, target.room);
+  if (!r3 || isNaN(r3)) return { error: "This unit doesn't have a rate set yet — add it in the Rate Sheet tab." };
+  const r2 = r3 + 200, r1 = r3 + 500;
+
+  const roomForNumbering = isWhole2br ? target.groupId.split("|")[1] : target.room;
+  const roomDigits = roomForNumbering.replace(/\D/g, "");
+  const floor = roomDigits[0] || "_";
+  const unitCode = roomDigits.length > 1 ? roomDigits.slice(1).padStart(2, "0") : "__";
+  const aptNumber = `${floor}.${unitCode}`;
+  const floorLabel = floor !== "_" ? ordinal(parseInt(floor)) : "___";
+
+  const title = isWhole2br ? "2 Bedroom 2 Bath Unit" : "1 Bedroom 1 Bath Unit";
+  const microwaveLine = isWhole2br ? "Microwave Oven - bake, roast, steam and air fry" : "Microwave Oven";
+
+  const videoHtml = videoLink ? `<a href="${videoLink}" target="_blank" rel="noopener">HERE</a>` : "HERE (video link not added yet)";
+  const videoText = videoLink ? `HERE (${videoLink})` : "HERE (video link not added yet)";
+  const infoHtml = infoPackLink ? `<a href="${infoPackLink}" target="_blank" rel="noopener">HERE</a>` : "HERE (info pack link not added yet)";
+  const infoText = infoPackLink ? `HERE (${infoPackLink})` : "HERE (info pack link not added yet)";
+  const fmt = n => "$" + n.toLocaleString("en-US");
+
+  const body = (video, info) => `${title} @ ${target.building}
+- Apt ${aptNumber} (Located on the ${floorLabel} Floor)
+- Available from ${moveInStr} to ${moveOutStr} (Extensions would be subject to availability & prevailing market rates)
+- You may view the pre-recorded apartment tour video ${video} & the information pack ${info}
+- Please note that this building is located with nearby bar, which may result in street noise and nightlife music.
+
+Building & unit features
+- This building has an elevator
+- In unit washer and dryer
+- Dishwasher
+- ${microwaveLine}
+- Smart Lock system accessible through a compatible smartphone
+
+Included Services
+- Complimentary internet and once a month housekeeping service
+
+
+RENTAL RATES
+
+OPTION 1
+- ${fmt(r1)} per month inclusive of utilities
+- Payment will be made monthly and is subject to background check, credit check and/or 3rd party guarantor
+
+OPTION 2
+- ${fmt(r2)} per month inclusive of utilities
+- Payments will be split into 2 installments without a guarantor
+
+OPTION 3
+- ${fmt(r3)} per month inclusive of utilities
+- Discounted rate for paying the full rental upon the signing of the license agreement without a guarantor`;
+
+  return { html: body(videoHtml, infoHtml), text: body(videoText, infoText) };
+}
+
+function generateUnitQuote() {
+  const target = getQuoteSelectedTarget();
+  const area = document.getElementById("quoteOutputArea");
+  const meta = document.getElementById("quoteOutputMeta");
+  const btn = document.getElementById("quoteCopyBtn");
+  quoteGeneratedHtml = ""; quoteGeneratedText = "";
+
+  if (!target) {
+    const query = document.getElementById("quoteApartmentInput").value.trim();
+    area.innerHTML = query
+      ? `<div class="empty-state"><div class="empty-icon">⚠</div><p>No matching unit found for "${query}".<br>Try just the unit number (e.g. "205") or floor.unit (e.g. "2.05").</p></div>`
+      : `<div class="empty-state"><div class="empty-icon">📄</div><p>Type an apartment number on the left.<br>The quote will appear here automatically.</p></div>`;
+    meta.textContent = query ? "No matching unit found" : "Type an apartment number to begin";
+    btn.disabled = true;
+    return;
+  }
+
+  const moveIn = parseDate(document.getElementById("quoteMoveIn").value);
+  const moveOut = parseDate(document.getElementById("quoteMoveOut").value);
+  const moveInStr = moveIn ? formatDisplay(moveIn) : (document.getElementById("quoteMoveIn").value.trim() || "___");
+  const moveOutStr = moveOut ? formatDisplay(moveOut) : (document.getElementById("quoteMoveOut").value.trim() || "___");
+  const linkKey = getUnitCode(target);
+  const videoLink = getUnitLink(target.building, linkKey, "videoTour");
+  const infoPackLink = getUnitLink(target.building, linkKey, "infoPack");
+
+  const result = buildUnitQuoteResult(target, moveInStr, moveOutStr, videoLink, infoPackLink);
+  if (!result) {
+    area.innerHTML = `<div class="empty-state"><div class="empty-icon">✏️</div><p>No quote template yet for this unit type.<br>Share the wording for this building/category and it'll be added.</p></div>`;
+    meta.textContent = "No template available for this selection yet";
+    btn.disabled = true;
+    return;
+  }
+  if (result.error) {
+    area.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠</div><p>${result.error}</p></div>`;
+    meta.textContent = "Rate not set yet";
+    btn.disabled = true;
+    return;
+  }
+
+  area.innerHTML = `<div class="output-text">${result.html}</div>`;
+  meta.textContent = "Quote generated — review before copying";
+  btn.disabled = false;
+  quoteGeneratedHtml = result.html;
+  quoteGeneratedText = result.text;
+}
+
+// Writes BOTH a text/html and a text/plain flavor to the clipboard so the
+// video tour link pastes as a real clickable hyperlink into Gmail/Outlook
+// (which read the html flavor), while apps that only accept plain text still
+// get the full URL inline rather than losing it. Falls back to plain-text-
+// only copying on browsers without Clipboard/ClipboardItem support.
+function copyQuoteText() {
+  if (!quoteGeneratedText) return;
+  const btn = document.getElementById("quoteCopyBtn");
+  const ok = () => { btn.className = "btn-copy copied"; btn.innerHTML = "✓ Copied!"; setTimeout(()=>{ btn.className="btn-copy"; btn.innerHTML="⎘ Copy quote"; },2000); };
+  if (navigator.clipboard && window.isSecureContext && window.ClipboardItem) {
+    const htmlBlob = new Blob([quoteGeneratedHtml.replace(/\n/g, "<br>")], { type: "text/html" });
+    const textBlob = new Blob([quoteGeneratedText], { type: "text/plain" });
+    navigator.clipboard.write([new ClipboardItem({ "text/html": htmlBlob, "text/plain": textBlob })]).then(ok).catch(()=>fallbackCopy(quoteGeneratedText, ok));
+  } else {
+    fallbackCopy(quoteGeneratedText, ok);
+  }
+}
+
 function populateBuildingDropdowns() {
   const rsSelect = document.getElementById("rateSheetBuilding");
   const recapSelect = document.getElementById("recapBuilding");
@@ -3292,6 +3661,9 @@ function populateBuildingDropdowns() {
     const opt = document.createElement("option"); opt.value=b; opt.textContent=b; bosGroup.appendChild(opt);
   });
   recapSelect.appendChild(bosGroup);
+  // Note: the Apartment Details tab (#quoteApartmentInput) is a free-text
+  // field, not a dropdown — no population needed here (see
+  // resolveQuoteApartment()).
 }
 
 window.addEventListener("DOMContentLoaded", function() {
