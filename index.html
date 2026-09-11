@@ -1123,6 +1123,43 @@ function loadRoomStatus() {
   } catch (e) { statusStore = {}; /* ignore corrupt localStorage */ }
 }
 
+// ── "Show in Broker Sheet" flags (NY, Fall only) ──────────────────────────
+// Independent of rates/status — a simple per-room boolean, keyed only by
+// building+room (no season split, since this flag only matters for the Fall
+// broker sheet sync). Mirrors localStorage "hc_broker_sheet_ny_fall_v1":
+// { [building]: { [room]: true } } — only `true` entries are stored, to
+// keep storage lean (absence = not shown to the broker).
+let brokerSheetStoreNy = {};
+
+function isInBrokerSheetNy(building, room) {
+  const b = brokerSheetStoreNy[building];
+  return !!(b && b[room]);
+}
+
+function setBrokerSheetNy(building, room, checked) {
+  if (!brokerSheetStoreNy[building]) brokerSheetStoreNy[building] = {};
+  if (checked) brokerSheetStoreNy[building][room] = true;
+  else delete brokerSheetStoreNy[building][room];
+}
+
+function saveBrokerSheetNyStore() {
+  localStorage.setItem("hc_broker_sheet_ny_fall_v1", JSON.stringify(brokerSheetStoreNy));
+}
+
+function loadBrokerSheetNy() {
+  try {
+    const raw = localStorage.getItem("hc_broker_sheet_ny_fall_v1");
+    brokerSheetStoreNy = raw ? JSON.parse(raw) : {};
+  } catch (e) { brokerSheetStoreNy = {}; }
+}
+
+function onBrokerSheetNyToggle(checkboxEl) {
+  const building = checkboxEl.getAttribute("data-building");
+  const room = checkboxEl.getAttribute("data-room");
+  setBrokerSheetNy(building, room, checkboxEl.checked);
+  saveBrokerSheetNyStore();
+}
+
 // Counts INDIVIDUAL ROOMS (not distinct deals/groups) by status, split by
 // season — e.g. a 4-room whole-apartment deal marked "sold" for Fall
 // contributes 4 to the Fall-sold count and 0 to Summer, since seasons are
@@ -1799,6 +1836,7 @@ function buildRoomRateTableHtml(building, slug, rooms) {
       `<td data-label="Fall Option 3 (Full Upfront)" class="season-cell-fall"><input type="number" class="rs-editable" id="rate_fullupfront_fall_${slug}_${roomSlug}" min="0" oninput="saveRateSheet()" disabled></td>` +
       `<td data-label="Fall Option 2 (2 Instalments)" class="season-cell-fall"><input type="number" id="rate_opt2_fall_${slug}_${roomSlug}" readonly tabindex="-1"></td>` +
       `<td data-label="Fall Option 1 (Monthly)" class="season-cell-fall"><input type="number" id="rate_opt1_fall_${slug}_${roomSlug}" readonly tabindex="-1"></td>` +
+      `<td data-label="Show in Broker Sheet" class="season-cell-fall"><input type="checkbox" id="broker_ny_fall_${slug}_${roomSlug}" data-building="${building}" data-room="${u.room}" onchange="onBrokerSheetNyToggle(this)"${isInBrokerSheetNy(building, u.room) ? " checked" : ""}></td>` +
     `</tr>`;
   }).join("");
   // Collapsed: NO "Unit Details" header cell at all (not even a 1-column
@@ -1819,12 +1857,12 @@ function buildRoomRateTableHtml(building, slug, rooms) {
         `<th rowspan="2">Unit No</th><th rowspan="2">Category</th>` +
         amenityToggleHeaderRow1 +
         `<th colspan="6" class="rate-group-summer">Summer</th>` +
-        `<th colspan="7" class="rate-group-fall">Fall</th>` +
+        `<th colspan="8" class="rate-group-fall">Fall</th>` +
       `</tr>` +
       `<tr>` +
         amenityHeaderRow2 +
         `<th class="rate-group-summer">Gender</th><th class="rate-group-summer">Status</th><th class="rate-group-summer">IA Rate ($/mo)</th><th class="rate-group-summer rs-whole-col">Whole Apartment (Full Upfront)</th><th class="rate-group-summer">Option 2 (Full Upfront)</th><th class="rate-group-summer">Option 1 (Monthly)</th>` +
-        `<th class="rate-group-fall">Gender</th><th class="rate-group-fall">Status</th><th class="rate-group-fall">IA Rate ($/mo)</th><th class="rate-group-fall rs-whole-col">Whole Apartment (Full Upfront)</th><th class="rate-group-fall">Option 3 (Full Upfront)</th><th class="rate-group-fall">Option 2 (2 Instalments)</th><th class="rate-group-fall">Option 1 (Monthly)</th>` +
+        `<th class="rate-group-fall">Gender</th><th class="rate-group-fall">Status</th><th class="rate-group-fall">IA Rate ($/mo)</th><th class="rate-group-fall rs-whole-col">Whole Apartment (Full Upfront)</th><th class="rate-group-fall">Option 3 (Full Upfront)</th><th class="rate-group-fall">Option 2 (2 Instalments)</th><th class="rate-group-fall">Option 1 (Monthly)</th><th class="rate-group-fall">Show in Broker Sheet</th>` +
       `</tr>` +
     `</thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -2287,6 +2325,7 @@ function loadRateSheet() {
   // while building each row's <select>/<tr> markup and the header summary.
   loadRoomStatus();
   loadGenderStore();
+  loadBrokerSheetNy();
 
   const year = localStorage.getItem("hc_rate_year_v1");
   document.getElementById("rateYear").value = (year !== null && year !== "") ? year : "2027";
@@ -2920,6 +2959,41 @@ function loadBostonRoomStatus() {
   } catch (e) { bostonStatusStore = {}; }
 }
 
+// ── "Show in Broker Sheet" flags (Boston) ─────────────────────────────────
+// Same shape/purpose as the NY version (brokerSheetStoreNy) — Boston has no
+// season split, so this is just one flag per room. Mirrors localStorage
+// "hc_broker_sheet_boston_v1": { [building]: { [room]: true } }.
+let brokerSheetStoreBoston = {};
+
+function isInBrokerSheetBoston(building, room) {
+  const b = brokerSheetStoreBoston[building];
+  return !!(b && b[room]);
+}
+
+function setBrokerSheetBoston(building, room, checked) {
+  if (!brokerSheetStoreBoston[building]) brokerSheetStoreBoston[building] = {};
+  if (checked) brokerSheetStoreBoston[building][room] = true;
+  else delete brokerSheetStoreBoston[building][room];
+}
+
+function saveBrokerSheetBostonStore() {
+  localStorage.setItem("hc_broker_sheet_boston_v1", JSON.stringify(brokerSheetStoreBoston));
+}
+
+function loadBrokerSheetBoston() {
+  try {
+    const raw = localStorage.getItem("hc_broker_sheet_boston_v1");
+    brokerSheetStoreBoston = raw ? JSON.parse(raw) : {};
+  } catch (e) { brokerSheetStoreBoston = {}; }
+}
+
+function onBrokerSheetBostonToggle(checkboxEl) {
+  const building = checkboxEl.getAttribute("data-building");
+  const room = checkboxEl.getAttribute("data-room");
+  setBrokerSheetBoston(building, room, checkboxEl.checked);
+  saveBrokerSheetBostonStore();
+}
+
 function onBostonStatusChange(selectEl) {
   const building = selectEl.getAttribute("data-building");
   const room = selectEl.getAttribute("data-room");
@@ -3218,6 +3292,7 @@ function buildBostonRoomTableHtml(building, slug, rooms) {
     const fullCell = `<td data-label="Option 3 (Full Upfront)"><input type="number" class="rs-editable" id="brate_fullupfront_${slug}_${roomSlug}" min="0" value="${fullVal}" oninput="saveBostonRateSheet()" disabled></td>`;
     const opt2Cell = `<td data-label="Option 2 (2 Instalments)"><input type="number" id="brate_opt2_${slug}_${roomSlug}" readonly tabindex="-1"></td>`;
     const opt1Cell = `<td data-label="Option 1 (Monthly)"><input type="number" id="brate_opt1_${slug}_${roomSlug}" readonly tabindex="-1"></td>`;
+    const brokerCell = `<td data-label="Show in Broker Sheet"><input type="checkbox" id="broker_boston_${slug}_${roomSlug}" data-building="${building}" data-room="${u.room}" onchange="onBrokerSheetBostonToggle(this)"${isInBrokerSheetBoston(building, u.room) ? " checked" : ""}></td>`;
 
     const genderCell = buildGenderCellHtml(building, u);
 
@@ -3232,12 +3307,13 @@ function buildBostonRoomTableHtml(building, slug, rooms) {
       fullCell +
       opt2Cell +
       opt1Cell +
+      brokerCell +
     `</tr>`;
   }).join("");
 
   const amenityHeader = amenityColumnsCollapsed ? "" : BOSTON_AMENITY_FIELDS.map(([f, l]) => `<th class="amenity-col">${l}</th>`).join("");
   return `<div class="rate-table-scroll"><table class="rate-table"><thead><tr>` +
-    `<th>Unit No</th><th>Category</th>${amenityHeader}<th>Gender</th><th>Status</th><th>IA Rate ($/mo)</th><th class="rs-whole-col">Whole Apartment (Full Upfront)</th><th>Option 3 (Full Upfront)</th><th>Option 2 (2 Instalments)</th><th>Option 1 (Monthly)</th>` +
+    `<th>Unit No</th><th>Category</th>${amenityHeader}<th>Gender</th><th>Status</th><th>IA Rate ($/mo)</th><th class="rs-whole-col">Whole Apartment (Full Upfront)</th><th>Option 3 (Full Upfront)</th><th>Option 2 (2 Instalments)</th><th>Option 1 (Monthly)</th><th>Show in Broker Sheet</th>` +
   `</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -3296,6 +3372,7 @@ function loadBostonRateSheet() {
     bostonRateStore = raw ? JSON.parse(raw) : {};
   } catch (e) { bostonRateStore = {}; }
   loadBostonRoomStatus();
+  loadBrokerSheetBoston();
 }
 
 // Simple single-property search: matches on room number only (there's one
